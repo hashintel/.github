@@ -1,4 +1,4 @@
-### Welcome to HASH 👋
+## Welcome to HASH 👋
 
 This is HASH's default [community health repo](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file).
 
