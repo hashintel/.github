@@ -16,4 +16,4 @@ This repo will contain default files for all HASH OSS repos and will be extended
 
 ### Why do this
 
-The goal of this is to improve the onboarding experience for our open-source community members. For the timebeing we'll be working in public exclusively out of the `hash` monorepo which already contains its own versions of the above (where applicable).
+The goal of this is to improve the onboarding experience for our open-source community members. For the timebeing we'll be working in public exclusively out of the [`hash` monorepo](https://github.com/hashintel/hash) which already contains its own versions of the above (where applicable).
