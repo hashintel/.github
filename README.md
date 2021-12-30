@@ -1,5 +1,19 @@
 ### Welcome to HASH 👋
 
-Creators of the open-source **#** [HASH](https://github.com/hashintel/hash/tree/main/packages/hash) workspace, **Þ** [Block Protocol](https://github.com/blockprotocol/blockprotocol) and fair-code 🚀 [HASH Engine](https://github.com/hashintel/hash/tree/main/packages/engine).
+This is HASH's default [community health repo](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file).
 
-Find us on [Twitter](https://twitter.com/hashintel), [LinkedIn](https://www.linkedin.com/company/hashintel), and at [hash.ai](https://hash.ai) 🌍 
+
+### What is this
+
+This repo will contain default files for all HASH OSS repos and will be extended to include:
+- Basic issue templates, covering Bug Report and Feature Requests
+- A PR template
+- Our contributions guid:e `CONTRIBUTING.md`
+- Our security terms: `SECURITY.md`
+- Our code of conduct: `CODE_OF_CONDUCT.md`
+- Support information for our users in `SUPPORT.md`
+
+
+### Why do this
+
+The goal of this is to improve the onboarding experience for our open-source community members. For the timebeing we'll be working in public exclusively out of the `hash` monorepo which already contains its own versions of the above (where applicable).
