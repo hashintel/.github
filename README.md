@@ -8,7 +8,7 @@ This is HASH's default [community health repo](https://docs.github.com/en/commun
 This repo will contain default files for all HASH OSS repos and will be extended to include:
 - Basic issue templates, covering Bug Report and Feature Requests
 - A PR template
-- Our contributions guid:e `CONTRIBUTING.md`
+- Our contributions guide: `CONTRIBUTING.md`
 - Our security terms: `SECURITY.md`
 - Our code of conduct: `CODE_OF_CONDUCT.md`
 - Support information for our users in `SUPPORT.md`
