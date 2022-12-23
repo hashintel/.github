@@ -2,7 +2,7 @@
 [block protocol]: https://github.com/blockprotocol/blockprotocol
 [hash]: https://github.com/hashintel/hash/tree/main/packages/hash
 [hash engine]: https://github.com/hashintel/hash/tree/main/packages/engine
-[github_banner]: https://github.com/hashintel#welcome-to-hash-
+[github_banner]: #welcome-to-hash-
 
 <!-- Social links -->
 [twitter]: https://twitter.com/hashintel
