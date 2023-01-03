@@ -25,9 +25,9 @@
 ### About HASH
 
 Creators of knowledge management and decision-making tools:
-- **Þ** [Block Protocol] - open-source standard for block <> app communication, and community of block builders
-- **#** [HASH] - open-source block-based workspace, built atop the Block Protocol
-- 🧠 [HASH Engine] - agent-based simulation engine written in Rust
+- **Þ [Block Protocol]** - open-source standard for block <> app communication, and community of block builders
+- **# [HASH]** - open-source block-based workspace, built atop the Block Protocol
+- 🧠 **[HASH Engine]** - agent-based simulation engine written in Rust
 
 ### Around the web
 
