@@ -1,7 +1,7 @@
 <!-- GitHub links -->
 [block protocol]: https://github.com/blockprotocol/blockprotocol
-[hash]: https://github.com/hashintel/hash/tree/main/packages/hash
-[hash engine]: https://github.com/hashintel/hash/tree/main/packages/engine
+[hash]: https://github.com/hashintel/hash/tree/main/apps/hash
+[hash engine]: https://github.com/hashintel/hash/tree/main/apps/engine
 [github_banner]: #welcome-to-hash-
 
 <!-- Social links -->
