@@ -6,7 +6,7 @@ This is HASH's default [community health repo](https://docs.github.com/en/commun
 ### What is this
 
 This repo will contain default files for all HASH OSS repos and will be extended to include:
-- Basic issue templates, covering Bug Report and Feature Requests
+- Basic issue templates, covering Bug Reports and Feature Requests
 - A PR template
 - Our contributions guide: `CONTRIBUTING.md`
 - Our security terms: `SECURITY.md`
@@ -16,4 +16,4 @@ This repo will contain default files for all HASH OSS repos and will be extended
 
 ### Why do this
 
-The goal of this is to improve the onboarding experience for our open-source community members. For the timebeing we'll be working in public exclusively out of the [`hash` monorepo](https://github.com/hashintel/hash) which already contains its own versions of the above (where applicable).
+The goal of this is to improve the onboarding experience for our open-source community members. For the timebeing we'll be working in public primarily out of the [`hash` monorepo](https://github.com/hashintel/hash) which already contains its own versions of the above (where applicable).
