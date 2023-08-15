@@ -4,7 +4,7 @@
 [github_banner]: #welcome-to-hash-
 
 <!-- Social links -->
-[twitter]: https://twitter.com/hashintel
+[x]: https://x.com/hashintel
 [discord]: https://hash.ai/discord?utm_medium=organic&utm_source=github_readme_hashintel-profile_root
 
 <!-- Site links -->
@@ -32,4 +32,4 @@ Creators of knowledge management and decision-making tools:
 - Browse our developer docs at [hash.dev] 🚀
 - Check out the Block Protocol [Hub] and [specification] [![blockprotocol](https://hash.ai/cdn-cgi/imagedelivery/EipKtqu98OotgfhvKf6Eew/bfa9a3fc-9301-45d7-73e4-26e7feb62900/16x16icon)][blockprotocol]
 - Join our community on [Discord] [![discord](https://hash.ai/cdn-cgi/imagedelivery/EipKtqu98OotgfhvKf6Eew/66be8013-77b0-4d39-8766-fecea1931800/16x16icon)][discord]
-- Or follow us on [Twitter] [![twitter](https://hash.ai/cdn-cgi/imagedelivery/EipKtqu98OotgfhvKf6Eew/8b960e80-562c-4b9a-da7c-837c44ad7200/16x16icon)][twitter]
+- Or follow us on [X] [![x](https://hash.ai/cdn-cgi/imagedelivery/EipKtqu98OotgfhvKf6Eew/8b960e80-562c-4b9a-da7c-837c44ad7200/16x16icon)][x]
