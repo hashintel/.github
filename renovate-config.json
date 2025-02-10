@@ -247,7 +247,6 @@
       "dependencyDashboardApproval": false,
       "matchPackageNames": ["/^@biomejs/"]
     },
-    
     {
       "groupName": "`express` npm packages",
       "matchManagers": ["npm"],
