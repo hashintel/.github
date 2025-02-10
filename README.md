@@ -12,7 +12,7 @@ This repo will contain default files for all HASH OSS repos and will be extended
 - Our security terms: `SECURITY.md`
 - Our code of conduct: `CODE_OF_CONDUCT.md`
 - Support information for our users in `SUPPORT.md`
-
+- A base Renovate configuration that can be used and/or extended: `renovate-config.json`
 
 ### Why do this
 
