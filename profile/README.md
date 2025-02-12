@@ -4,11 +4,11 @@
 [github_banner]: #welcome-to-hash-
 
 <!-- Social links -->
-[x]: https://x.com/hashintel
+[𝕏]: https://x.com/hashintel
 [discord]: https://hash.ai/discord?utm_medium=organic&utm_source=github_readme_hashintel-profile_root
 
 <!-- Site links -->
-[hash.ai]: https://hash.ai/?utm_medium=organic&utm_source=github_readme_hashintel-profile_root
+[hash.ai]: https://app.hash.ai/?utm_medium=organic&utm_source=github_readme_hashintel-profile_root
 [hash.dev]: https://hash.dev/?utm_medium=organic&utm_source=github_readme_hashintel-profile_root
 [blockprotocol]: https://blockprotocol.org/?utm_medium=organic&utm_source=github_readme_hashintel-profile_root
 [hub]: https://blockprotocol.org/hub?utm_medium=organic&utm_source=github_readme_hashintel-profile_root
@@ -28,7 +28,6 @@ Creators of knowledge management and decision-making tools:
 
 ### Around the web
 
-- Try out the hosted version of HASH at [hash.ai] 🌍 
-- Browse our developer docs and resources at [hash.dev] 🚀
-- Join our community on [Discord] [![discord](https://hash.ai/cdn-cgi/imagedelivery/EipKtqu98OotgfhvKf6Eew/66be8013-77b0-4d39-8766-fecea1931800/16x16icon)][discord]
-- Or follow us on [X] [![x](https://hash.ai/cdn-cgi/imagedelivery/EipKtqu98OotgfhvKf6Eew/8b960e80-562c-4b9a-da7c-837c44ad7200/16x16icon)][x]
+- Try out the hosted version of HASH at [hash.ai]
+- Browse our developer docs and resources at [hash.dev]
+- Follow us on [𝕏]
