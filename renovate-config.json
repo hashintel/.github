@@ -21,6 +21,12 @@
   "dependencyDashboard": true,
   "dependencyDashboardApproval": true,
   "dependencyDashboardTitle": "🚀 Dependency Updates",
+  "lockFileMaintenance": { 
+    "enabled": true,
+    "branchTopic": "lock-regenerate",
+    "commitMessageAction": "Regenerate lock files",
+    "schedule": ["before 4am on sunday"]
+  },
   "npm": {
     "minimumReleaseAge": "3 days"
   },
