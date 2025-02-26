@@ -284,6 +284,11 @@
     },
     {
       "matchManagers": ["cargo"],
+      "groupName": "`cedar-policy` Rust crates",
+      "matchPackageNames": ["/^cedar-policy[-_]?/"]
+    },
+    {
+      "matchManagers": ["cargo"],
       "groupName": "`clap` Rust crates",
       "matchPackageNames": ["/^clap[-_]?/"]
     },
