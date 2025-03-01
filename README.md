@@ -1,11 +1,11 @@
-## Welcome to HASH 👋
+# Welcome to HASH 👋
 
 This is HASH's default [community health repo](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file).
 
-
-### What is this
+## What is this
 
 This repo will contain default files for all HASH OSS repos and will be extended to include:
+
 - Basic issue templates, covering Bug Reports and Feature Requests
 - A PR template
 - Our contributions guide: `CONTRIBUTING.md`
