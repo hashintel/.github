@@ -344,12 +344,6 @@
       "matchManagers": ["cargo"],
       "groupName": "`libp2p` Rust crates",
       "matchPackageNames": ["/^libp2p[-_]?/"]
-    },
-    {
-      "matchManagers": ["cargo"],
-      "matchFileNames": ["libs/error-stack/Cargo.toml"],
-      "matchPackageNames": ["anyhow"],
-      "enabled": false
     }
   ],
   "customManagers": [
