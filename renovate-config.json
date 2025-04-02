@@ -67,6 +67,13 @@
       "assignees": ["TimDiekmann"]
     },
     {
+      "matchManagers": ["mise"],
+      "commitMessageTopic": "tool `{{depName}}`",
+      "additionalBranchPrefix": "tool/",
+      "dependencyDashboardApproval": false,
+      "assignees": ["TimDiekmann"]
+    },
+    {
       "matchDepTypes": ["devDependencies"],
       "dependencyDashboardApproval": false,
       "assignees": ["TimDiekmann"],
