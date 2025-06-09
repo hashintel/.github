@@ -306,6 +306,11 @@
     },
     {
       "matchManagers": ["cargo"],
+      "groupName": "`anstyle` Rust crates",
+      "matchPackageNames": ["anstream", "colorchoice-clap", "/^anstyle[-_]?/"]
+    },
+    {
+      "matchManagers": ["cargo"],
       "groupName": "`dashu` Rust crates",
       "matchPackageNames": ["/^dashu[-_]?/"]
     },
