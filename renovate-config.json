@@ -316,6 +316,11 @@
     },
     {
       "matchManagers": ["cargo"],
+      "groupName": "`frunk` Rust crates",
+      "matchPackageNames": ["/^frunk[-_]?/"]
+    },
+    {
+      "matchManagers": ["cargo"],
       "groupName": "`napi` Rust crates",
       "matchPackageNames": ["/^napi[-_]?/"]
     },
