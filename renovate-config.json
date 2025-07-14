@@ -321,6 +321,11 @@
     },
     {
       "matchManagers": ["cargo"],
+      "groupName": "`indicatif` Rust crates",
+      "matchPackageNames": ["/^indicatif[-_]?/", "/-indicatif$/"]
+    },
+    {
+      "matchManagers": ["cargo"],
       "groupName": "`napi` Rust crates",
       "matchPackageNames": ["/^napi[-_]?/"]
     },
