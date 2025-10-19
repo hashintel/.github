@@ -1,7 +1,6 @@
 <!-- GitHub links -->
 [block protocol]: https://github.com/blockprotocol/blockprotocol
 [hash]: https://github.com/hashintel/hash
-[github_banner]: #welcome-to-hash-
 
 <!-- Social links -->
 [𝕏]: https://x.com/hashintel
