@@ -376,6 +376,11 @@
       "matchManagers": ["cargo"],
       "groupName": "`libp2p` Rust crates",
       "matchPackageNames": ["/^libp2p[-_]?/"]
+    },
+    {
+      "matchManagers": ["cargo"],
+      "groupName": "`Temporal` Rust crates",
+      "matchPackageNames": ["/^temporal[-_]?/"]
     }
   ],
   "customManagers": [
