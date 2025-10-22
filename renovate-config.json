@@ -191,6 +191,11 @@
       "matchPackageNames": ["/^@graphql//", "/^graphql-/", "/graphql$/"]
     },
     {
+      "groupName": "`@react-three` npm packages",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["/^@react-three//"]
+    },
+    {
       "description": "Exclude `tldraw` from updates due to non-OSS license in later releases",
       "matchManagers": ["npm"],
       "enabled": false,
