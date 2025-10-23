@@ -35,7 +35,7 @@
     {
       "extends": ["packages:linters", "packages:test"],
       "dependencyDashboardApproval": false,
-      "assignees": ["TimDiekmann"]
+      "assignees": ["TimDiekmann", "indietyp"]
     },
     {
       "matchManagers": ["github-actions"],
@@ -43,14 +43,14 @@
       "additionalBranchPrefix": "gha/",
       "pinDigests": true,
       "dependencyDashboardApproval": false,
-      "assignees": ["TimDiekmann"],
+      "assignees": ["TimDiekmann", "indietyp"],
       "schedule": ["before 2am on saturday"]
     },
     {
       "matchManagers": ["docker-compose", "dockerfile"],
       "commitMessageTopic": "Docker tag `{{depName}}`",
       "additionalBranchPrefix": "docker/",
-      "assignees": ["TimDiekmann"]
+      "assignees": ["TimDiekmann", "indietyp"]
     },
     {
       "matchManagers": ["npm"],
@@ -64,19 +64,19 @@
       "additionalBranchPrefix": "rs/",
       "reviewers": ["team:Rust"],
       "dependencyDashboardApproval": false,
-      "assignees": ["TimDiekmann"]
+      "assignees": ["TimDiekmann", "indietyp"]
     },
     {
       "matchManagers": ["mise"],
       "commitMessageTopic": "tool `{{depName}}`",
       "additionalBranchPrefix": "tool/",
       "dependencyDashboardApproval": false,
-      "assignees": ["TimDiekmann"]
+      "assignees": ["TimDiekmann", "indietyp"]
     },
     {
       "matchDepTypes": ["devDependencies"],
       "dependencyDashboardApproval": false,
-      "assignees": ["TimDiekmann"],
+      "assignees": ["TimDiekmann", "indietyp"],
       "matchPackageNames": [
         "/^@vitest//",
         "/^vite-/",
@@ -277,7 +277,7 @@
     {
       "groupName": "`sentry` npm packages",
       "matchManagers": ["npm"],
-      "assignees": ["TimDiekmann"],
+      "assignees": ["TimDiekmann", "CiaranMn"],
       "matchPackageNames": ["/^@sentry//"]
     },
     {
@@ -297,7 +297,7 @@
       "reviewers": ["team:Rust"],
       "dependencyDashboardApproval": false,
       "schedule": ["before 11am"],
-      "assignees": ["TimDiekmann"]
+      "assignees": ["TimDiekmann", "indietyp"]
     },
     {
       "matchManagers": ["cargo"],
