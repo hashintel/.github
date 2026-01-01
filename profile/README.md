@@ -3,7 +3,7 @@
 [hash]: https://github.com/hashintel/hash
 
 <!-- Social links -->
-[𝕏]: https://x.com/hashintel
+[𝕏]: https://x.com/hashai
 [linkedin]: https://linkedin.com/company/hashintel
 
 <!-- Site links -->
