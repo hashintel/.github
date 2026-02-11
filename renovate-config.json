@@ -133,6 +133,11 @@
       "matchPackageNames": ["/^@ory//"]
     },
     {
+      "groupName": "`mastra` npm packages",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["/^@mastra//", "/^mastra$/"]
+    },
+    {
       "groupName": "`rollup` npm packages",
       "matchManagers": ["npm"],
       "matchPackageNames": ["/^@rollup//", "/^rollup$/"],
