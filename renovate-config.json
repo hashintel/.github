@@ -380,7 +380,7 @@
     {
       "matchManagers": ["cargo"],
       "groupName": "`Temporal` Rust crates",
-      "matchPackageNames": ["/^temporal[-_]?/"]
+      "matchPackageNames": ["/^temporalio[-_]?/"]
     }
   ],
   "customManagers": [
