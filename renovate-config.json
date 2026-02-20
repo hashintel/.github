@@ -74,6 +74,29 @@
       "assignees": ["TimDiekmann", "indietyp"]
     },
     {
+      "description": "Terraform providers",
+      "matchManagers": ["terraform"],
+      "matchDepTypes": ["provider"],
+      "additionalBranchPrefix": "tf/",
+      "commitMessageTopic": "Terraform provider `{{depName}}`",
+      "dependencyDashboardApproval": false,
+      "assignees": ["TimDiekmann"]
+    },
+    {
+      "description": "Don't auto-bump terraform required_version (controlled via mise)",
+      "matchManagers": ["terraform"],
+      "matchDepTypes": ["required_version"],
+      "enabled": false
+    },
+    {
+      "description": "TFLint plugins",
+      "matchManagers": ["tflint-plugin"],
+      "additionalBranchPrefix": "tflint/",
+      "commitMessageTopic": "TFLint plugin `{{depName}}`",
+      "dependencyDashboardApproval": false,
+      "assignees": ["TimDiekmann"]
+    },
+    {
       "matchDepTypes": ["devDependencies"],
       "dependencyDashboardApproval": false,
       "assignees": ["TimDiekmann", "indietyp"],
