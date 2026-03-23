@@ -140,8 +140,6 @@
       "matchManagers": ["npm"],
       "automerge": false,
       "dependencyDashboardApproval": false,
-      "minimumReleaseAge": "0 days",
-      "schedule": ["after 1am"],
       "matchPackageNames": ["/^@openai//", "/^@anthropic-ai//", "/groq-sdk/"]
     },
     {
