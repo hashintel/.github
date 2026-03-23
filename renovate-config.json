@@ -21,9 +21,7 @@
   "dependencyDashboard": true,
   "dependencyDashboardApproval": true,
   "dependencyDashboardTitle": "🚀 Dependency Updates",
-  "npm": {
-    "minimumReleaseAge": "3 days"
-  },
+  "minimumReleaseAge": "3 days",
   "postUpdateOptions": ["yarnDedupeHighest"],
   "rebaseWhen": "conflicted",
   "semanticCommits": "disabled",
