@@ -28,7 +28,6 @@ permissions:
 
 jobs:
   dismiss-stale-approvals:
-    name: Dismiss stale approvals
     runs-on: ubuntu-24.04
     steps:
       - name: Resolve reusable workflow ref
