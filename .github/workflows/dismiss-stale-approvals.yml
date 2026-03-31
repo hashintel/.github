@@ -55,7 +55,7 @@ jobs:
         run: .github/actions/dismiss-stale-approvals/self-test.sh
 
       - name: Dismiss stale pull request approvals
-        if: github.event_name != 'merge_group'
+        if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
         uses: ./.github/actions/dismiss-stale-approvals
         with:
           dry-run: ${{ github.event_name == 'pull_request' }}
