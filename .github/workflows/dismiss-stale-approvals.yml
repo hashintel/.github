@@ -18,8 +18,7 @@ jobs:
   dismiss_stale_approvals:
     runs-on: ubuntu-24.04
     steps:
-      - name: Checkout action from trusted ref
-        if: github.event_name != 'pull_request'
+      - name: Checkout action
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           repository: hashintel/.github
@@ -27,15 +26,12 @@ jobs:
           sparse-checkout: |
             .github/actions/dismiss-stale-approvals
 
-      - name: Checkout pull request revision
-        if: github.event_name == 'pull_request'
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
       - name: Run self-test
         if: github.event_name == 'pull_request'
         run: .github/actions/dismiss-stale-approvals/self-test.sh
 
       - name: Dismiss stale pull request approvals
+        if: github.event_name != 'merge_group'
         uses: ./.github/actions/dismiss-stale-approvals
         with:
           dry-run: ${{ github.event_name == 'pull_request' }}
