@@ -5,7 +5,7 @@
 #
 # TODO: Replace OIDC workaround with $/ syntax once available
 # see: https://github.com/orgs/community/discussions/26245#discussioncomment-15601440
-name: Dismiss stale pull request approvals
+name: Stale approvals
 
 on:
   pull_request:
@@ -27,7 +27,8 @@ permissions:
   pull-requests: write
 
 jobs:
-  dismiss-stale-approvals:
+  dismiss:
+    name: Dismiss
     runs-on: ubuntu-24.04
     steps:
       - name: Resolve reusable workflow ref
