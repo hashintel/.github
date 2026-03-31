@@ -18,11 +18,15 @@ jobs:
   dismiss_stale_approvals:
     runs-on: ubuntu-24.04
     steps:
+      - name: Resolve checkout ref
+        id: ref
+        run: echo "sha=${GITHUB_WORKFLOW_REF##*@}" >> "$GITHUB_OUTPUT"
+
       - name: Checkout action
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           repository: hashintel/.github
-          ref: ${{ github.workflow_sha }}
+          ref: ${{ steps.ref.outputs.sha }}
           sparse-checkout: |
             .github/actions/dismiss-stale-approvals
 
