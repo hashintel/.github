@@ -19,6 +19,10 @@ on:
 permissions:
   actions: read
   contents: read
+  # Required to extract job_workflow_ref from the OIDC token, which contains
+  # the ref this reusable workflow was called with. This is the only reliable
+  # way to resolve the correct checkout ref for the composite action.
+  # see: https://github.com/actions/toolkit/issues/1264
   id-token: write
   pull-requests: write
 
