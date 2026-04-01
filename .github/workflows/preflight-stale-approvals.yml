@@ -30,6 +30,7 @@ jobs:
   dismiss:
     name: Dismiss
     runs-on: ubuntu-24.04
+    if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
     steps:
       - name: Resolve reusable workflow ref
         id: workflow-ref
@@ -51,11 +52,9 @@ jobs:
             .github/actions/dismiss-stale-approvals
 
       - name: Run self-test
-        if: github.event_name == 'pull_request'
         run: .github/actions/dismiss-stale-approvals/self-test.sh
 
       - name: Dismiss stale pull request approvals
-        if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
         uses: ./.github/actions/dismiss-stale-approvals
         with:
           dry-run: ${{ github.event_name == 'pull_request' }}
