@@ -15,7 +15,7 @@ on:
       - ".github/workflows/housekeeping-dependencies.yml"
       - "package.json"
   schedule:
-    - cron: "0/30 * * * *"
+    - cron: "0 3 * * *"
   workflow_dispatch:
     inputs:
       repoCache:
