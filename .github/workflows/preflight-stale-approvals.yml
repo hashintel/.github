@@ -10,7 +10,7 @@ name: Stale approvals
 on:
   pull_request:
     paths:
-      - ".github/workflows/dismiss-stale-approvals.yml"
+      - ".github/workflows/preflight-stale-approvals.yml"
       - ".github/actions/dismiss-stale-approvals/**"
   pull_request_target:
   merge_group:

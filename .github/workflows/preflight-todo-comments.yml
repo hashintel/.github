@@ -8,7 +8,7 @@ name: Todo Comments
 on:
   pull_request:
     paths:
-      - ".github/workflows/todo-comments.yml"
+      - ".github/workflows/preflight-todo-comments.yml"
   pull_request_target:
   merge_group:
   workflow_call:

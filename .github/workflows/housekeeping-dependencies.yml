@@ -12,7 +12,7 @@ name: Update dependencies
 on:
   pull_request:
     paths:
-      - ".github/workflows/renovate.yml"
+      - ".github/workflows/housekeeping-dependencies.yml"
       - "package.json"
   schedule:
     - cron: "0/30 * * * *"

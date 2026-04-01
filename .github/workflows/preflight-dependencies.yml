@@ -12,7 +12,7 @@ name: Dependencies
 on:
   pull_request:
     paths:
-      - ".github/workflows/dependencies.yml"
+      - ".github/workflows/preflight-dependencies.yml"
   pull_request_target:
   merge_group:
   workflow_call:
