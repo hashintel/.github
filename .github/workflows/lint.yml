@@ -18,7 +18,8 @@ jobs:
 
       - name: Validate renovate config
         run: |
-          npm install --global renovate
+          version=$(jq -r '.devDependencies.renovate' package.json)
+          npm install --global "renovate@$version"
           if ! renovate-config-validator; then
             echo ''
             echo ''
