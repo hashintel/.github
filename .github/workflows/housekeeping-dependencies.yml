@@ -15,7 +15,7 @@ on:
       - ".github/workflows/housekeeping-dependencies.yml"
       - "package.json"
   schedule:
-    - cron: "0 3 * * *"
+    - cron: "0 */2 * * *"
   workflow_dispatch:
     inputs:
       repoCache:
@@ -111,7 +111,6 @@ jobs:
           echo "Renovate version: $version"
 
       - name: Authenticate Vault
-        if: env.dry_run == 'disabled'
         id: secrets
         uses: hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b # v3.4.0
         with:
@@ -123,7 +122,6 @@ jobs:
             automation/data/pipelines/hash/dev github_worker_app_private_key | GITHUB_WORKER_APP_PRIVATE_KEY ;
 
       - name: Get token
-        if: env.dry_run == 'disabled'
         id: app-token
         uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2.2.2
         with:
@@ -160,7 +158,7 @@ jobs:
       - name: Run Renovate
         env:
           LOG_LEVEL: ${{ inputs.logLevel || 'info' }}
-          RENOVATE_TOKEN: ${{ steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
+          RENOVATE_TOKEN: ${{ steps.app-token.outputs.token }}
           RENOVATE_FORCE: ${{ inputs.overrideSchedule && '{"schedule":null}' || '' }}
           RENOVATE_DRY_RUN: ${{ env.dry_run == 'disabled' && 'null' || env.dry_run }}
           RENOVATE_PLATFORM_COMMIT: enabled
