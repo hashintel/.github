@@ -388,6 +388,114 @@ test_action_run_blocks_do_not_inline_github_context() {
   fi
 }
 
+test_base_branch_advance_is_not_stale() {
+  local repo_path
+  repo_path="$(mktemp -d)"
+  register_temp_path "$repo_path"
+
+  create_repo "$repo_path"
+
+  # main: initial commit
+  printf 'base\n' >"$repo_path/file.txt"
+  git -C "$repo_path" add file.txt
+  git -C "$repo_path" commit -qm "initial base"
+  local trunk_branch
+  trunk_branch="$(git -C "$repo_path" branch --show-current)"
+
+  # featureA branch (stacked PR base)
+  git -C "$repo_path" checkout -qb featureA
+  printf 'featureA\n' >"$repo_path/a.txt"
+  git -C "$repo_path" add a.txt
+  git -C "$repo_path" commit -qm "featureA commit"
+  local feature_a_sha
+  feature_a_sha="$(git -C "$repo_path" rev-parse HEAD)"
+
+  # featureB branch (stacked on featureA)
+  git -C "$repo_path" checkout -qb featureB
+  printf 'featureB\n' >"$repo_path/b.txt"
+  git -C "$repo_path" add b.txt
+  git -C "$repo_path" commit -qm "featureB commit"
+  local head_sha
+  head_sha="$(git -C "$repo_path" rev-parse HEAD)"
+
+  # Previous state: featureB targets featureA
+  local prev_base_sha="$feature_a_sha"
+  local prev_head_sha="$head_sha"
+
+  # Squash-merge featureA into main
+  git -C "$repo_path" checkout -q "$trunk_branch"
+  git -C "$repo_path" merge --squash featureA -q
+  git -C "$repo_path" commit -qm "squash merge featureA"
+  local base_sha
+  base_sha="$(git -C "$repo_path" rev-parse HEAD)"
+
+  # featureB HEAD unchanged, base changed (retargeted to main)
+  local prev_merge_base merge_base range_diff output
+  prev_merge_base="$(git -C "$repo_path" merge-base "$prev_base_sha" "$prev_head_sha")"
+  merge_base="$(git -C "$repo_path" merge-base "$base_sha" "$head_sha")"
+  range_diff="$(git -C "$repo_path" range-diff "$prev_merge_base..$prev_head_sha" "$merge_base..$head_sha")"
+
+  output="$(printf '%s\n' "$range_diff" | run_range_diff_stale)"
+
+  # range-diff reports stale because merge-base shifted, but HEAD is unchanged
+  # so the action should short-circuit before reaching range-diff
+  # Here we verify the range-diff parser DOES report stale (the bug)
+  [[ "$output" == "stale=true" ]] ||
+    fail "Expected range-diff parser to report stale=true for shifted merge-base (this is the known false positive), got: $output"
+}
+
+test_base_branch_advance_e2e_is_not_stale() {
+  local repo_path
+  repo_path="$(mktemp -d)"
+  register_temp_path "$repo_path"
+
+  create_repo "$repo_path"
+
+  # main: initial commit
+  printf 'base\n' >"$repo_path/file.txt"
+  git -C "$repo_path" add file.txt
+  git -C "$repo_path" commit -qm "initial base"
+  local trunk_branch
+  trunk_branch="$(git -C "$repo_path" branch --show-current)"
+
+  # featureA branch
+  git -C "$repo_path" checkout -qb featureA
+  printf 'featureA\n' >"$repo_path/a.txt"
+  git -C "$repo_path" add a.txt
+  git -C "$repo_path" commit -qm "featureA commit"
+  local feature_a_sha
+  feature_a_sha="$(git -C "$repo_path" rev-parse HEAD)"
+
+  # featureB branch (stacked on featureA)
+  git -C "$repo_path" checkout -qb featureB
+  printf 'featureB\n' >"$repo_path/b.txt"
+  git -C "$repo_path" add b.txt
+  git -C "$repo_path" commit -qm "featureB commit"
+
+  local head_sha prev_head_sha prev_base_sha base_sha
+  head_sha="$(git -C "$repo_path" rev-parse HEAD)"
+  prev_head_sha="$head_sha"
+  prev_base_sha="$feature_a_sha"
+
+  # Squash-merge featureA into main
+  git -C "$repo_path" checkout -q "$trunk_branch"
+  git -C "$repo_path" merge --squash featureA -q
+  git -C "$repo_path" commit -qm "squash merge featureA"
+  base_sha="$(git -C "$repo_path" rev-parse HEAD)"
+
+  # Call the actual function under test — same code path as action.yml
+  local output
+  output="$(run_check_range_diff_stale \
+    --repository-path "$repo_path" \
+    --prev-base-sha "$prev_base_sha" \
+    --prev-head-sha "$prev_head_sha" \
+    --base-sha "$base_sha" \
+    --head-sha "$head_sha")"
+
+  [[ "$output" == "stale=false" ]] ||
+    fail "Expected stale=false when HEAD unchanged after base-branch squash-merge, got: $output"
+}
+
 test_action_uses_github_env_shas_without_redeclaring_them() {
   local range_diff_block merge_tree_block
   range_diff_block="$(extract_step_block "Check if diff has changed")"
@@ -424,6 +532,8 @@ main() {
   test_action_continues_after_approval_lookup_failure
   test_action_run_blocks_do_not_inline_github_context
   test_action_uses_github_env_shas_without_redeclaring_them
+  test_base_branch_advance_is_not_stale
+  test_base_branch_advance_e2e_is_not_stale
 
   echo "dismiss-stale-approvals self-test passed"
 }
