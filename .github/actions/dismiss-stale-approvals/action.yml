@@ -105,11 +105,14 @@ runs:
           "$BASE_SHA" \
           "$HEAD_SHA"
 
-        prev_merge_base="$(git -C "$FETCHED_REPOSITORY_PATH" merge-base "$PREV_BASE_SHA" "$PREV_HEAD_SHA")"
-        merge_base="$(git -C "$FETCHED_REPOSITORY_PATH" merge-base "$BASE_SHA" "$HEAD_SHA")"
-        range_diff="$(git -C "$FETCHED_REPOSITORY_PATH" range-diff "$prev_merge_base..$PREV_HEAD_SHA" "$merge_base..$HEAD_SHA")"
-
-        printf '%s\n' "$range_diff" | "$ACTION_PATH/range-diff-stale.sh" >> "$GITHUB_OUTPUT"
+        # shellcheck source=range-diff-stale.sh
+        source "$ACTION_PATH/range-diff-stale.sh"
+        run_check_range_diff_stale \
+          --repository-path "$FETCHED_REPOSITORY_PATH" \
+          --prev-base-sha "$PREV_BASE_SHA" \
+          --prev-head-sha "$PREV_HEAD_SHA" \
+          --base-sha "$BASE_SHA" \
+          --head-sha "$HEAD_SHA" >> "$GITHUB_OUTPUT"
 
     - name: Read latest approval SHA
       id: approval
