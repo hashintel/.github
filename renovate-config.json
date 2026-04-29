@@ -411,11 +411,6 @@
       "matchManagers": ["cargo"],
       "groupName": "`nextest` Rust crates",
       "matchPackageNames": ["/^nextest[-_]?/"]
-    },
-    {
-      "matchManagers": ["cargo"],
-      "groupName": "`rand` Rust crates",
-      "matchPackageNames": ["/^rand[-_]?/"]
     }
   ],
   "customManagers": [
