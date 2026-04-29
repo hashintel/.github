@@ -406,6 +406,11 @@
       "matchManagers": ["cargo"],
       "groupName": "`Temporal` Rust crates",
       "matchPackageNames": ["/^temporalio[-_]?/"]
+    },
+    {
+      "matchManagers": ["cargo"],
+      "groupName": "`nextest` Rust crates",
+      "matchPackageNames": ["/^nextest[-_]?/"]
     }
   ],
   "customManagers": [
