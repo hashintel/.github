@@ -421,6 +421,11 @@
       "matchManagers": ["cargo"],
       "groupName": "`reqwest` Rust crates",
       "matchPackageNames": ["/^reqwest[-_]?/"]
+    },
+    {
+      "matchManagers": ["cargo"],
+      "groupName": "`deadpool` Rust crates",
+      "matchPackageNames": ["/^deadpool[-_]?/"]
     }
   ],
   "customManagers": [
