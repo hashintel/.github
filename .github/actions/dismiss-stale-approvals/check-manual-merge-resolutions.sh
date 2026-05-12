@@ -30,8 +30,9 @@ run_check_manual_merge_resolutions() {
   fi
 
   if ! run_git "$repository_path" merge-base --is-ancestor "$approval_sha" "$head_sha"; then
-    printf 'stale=true\n'
-    printf 'reason=Latest approval commit %s is not an ancestor of %s, indicating rewritten history after approval\n' "$approval_sha" "$head_sha"
+    # Rebases and restacks rewrite commit IDs. Non-ancestor alone does not prove
+    # that the reviewed patch series changed, so let range-diff decide that.
+    printf 'stale=false\nreason=\n'
     return 0
   fi
 

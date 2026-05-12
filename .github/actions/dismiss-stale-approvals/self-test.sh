@@ -171,7 +171,7 @@ test_decision_keeps_successful_no_approval_path_safe() {
     fail "Expected a successful no-approval decision to stay non-stale, got:"$'\n'"$output"
 }
 
-test_rewritten_history_is_stale() {
+test_rewritten_history_defers_to_range_diff() {
   local repo_path
   repo_path="$(mktemp -d)"
   register_temp_path "$repo_path"
@@ -197,8 +197,55 @@ test_rewritten_history_is_stale() {
   local output
   output="$(run_check_manual_merge_resolutions "$repo_path" "$approval_sha" "$head_sha")"
 
-  assert_contains "$output" "stale=true"
-  assert_contains "$output" "rewritten history"
+  [[ "$output" == $'stale=false\nreason=' ]] ||
+    fail "Expected rewritten history without descendant ancestry to defer to range-diff, got:"$'\n'"$output"
+}
+
+test_rewritten_history_with_changed_patch_series_is_stale_via_range_diff() {
+  local repo_path output decision_output
+  repo_path="$(mktemp -d)"
+  register_temp_path "$repo_path"
+
+  create_repo "$repo_path"
+
+  printf 'base\n' >"$repo_path/file.txt"
+  git -C "$repo_path" add file.txt
+  git -C "$repo_path" commit -qm "base"
+  local prev_base_sha
+  prev_base_sha="$(git -C "$repo_path" rev-parse HEAD)"
+
+  printf 'approved\n' >"$repo_path/file.txt"
+  git -C "$repo_path" commit -qam "approved"
+  local approval_sha prev_head_sha
+  approval_sha="$(git -C "$repo_path" rev-parse HEAD)"
+  prev_head_sha="$approval_sha"
+
+  git -C "$repo_path" reset --hard HEAD~1 >/dev/null
+
+  printf 'rewritten and changed\n' >"$repo_path/file.txt"
+  git -C "$repo_path" commit -qam "rewritten"
+  local head_sha base_sha
+  head_sha="$(git -C "$repo_path" rev-parse HEAD)"
+  base_sha="$(git -C "$repo_path" rev-parse HEAD~1)"
+
+  output="$(run_check_manual_merge_resolutions "$repo_path" "$approval_sha" "$head_sha")"
+  [[ "$output" == $'stale=false\nreason=' ]] ||
+    fail "Expected rewritten history check to defer to range-diff, got:"$'\n'"$output"
+
+  local range_diff_output
+  range_diff_output="$(
+    run_check_range_diff_stale \
+      --repository-path "$repo_path" \
+      --prev-base-sha "$prev_base_sha" \
+      --prev-head-sha "$prev_head_sha" \
+      --base-sha "$base_sha" \
+      --head-sha "$head_sha"
+  )"
+  assert_contains "$range_diff_output" "stale=true"
+
+  decision_output="$(run_decide_stale_approvals "success" "success" "false" "" "success" "true" "0" "https://example.test/run")"
+  assert_contains "$decision_output" "stale=true"
+  assert_contains "$decision_output" 'See the output of `git range-diff`'
 }
 
 test_rev_list_failure_returns_nonzero() {
@@ -521,7 +568,8 @@ main() {
   test_no_approval_is_not_stale
   test_decision_marks_approval_lookup_failure_stale
   test_decision_keeps_successful_no_approval_path_safe
-  test_rewritten_history_is_stale
+  test_rewritten_history_defers_to_range_diff
+  test_rewritten_history_with_changed_patch_series_is_stale_via_range_diff
   test_rev_list_failure_returns_nonzero
   test_missing_approval_commit_is_stale
   test_bare_repo_conflict_merge_is_stale
