@@ -248,6 +248,51 @@ test_rewritten_history_with_changed_patch_series_is_stale_via_range_diff() {
   assert_contains "$decision_output" 'See the output of `git range-diff`'
 }
 
+test_merge_base_failure_returns_nonzero() {
+  local repo_path output status
+  repo_path="$(mktemp -d)"
+  register_temp_path "$repo_path"
+
+  create_repo "$repo_path"
+
+  printf 'base\n' >"$repo_path/file.txt"
+  git -C "$repo_path" add file.txt
+  git -C "$repo_path" commit -qm "base"
+
+  printf 'approved\n' >"$repo_path/file.txt"
+  git -C "$repo_path" commit -qam "approved"
+  local approval_sha
+  approval_sha="$(git -C "$repo_path" rev-parse HEAD)"
+
+  printf 'head\n' >"$repo_path/file.txt"
+  git -C "$repo_path" commit -qam "head"
+  local head_sha
+  head_sha="$(git -C "$repo_path" rev-parse HEAD)"
+
+  run_git() {
+    local repository_path="$1"
+    shift
+
+    if [[ "$1" == "merge-base" ]]; then
+      echo "forced merge-base failure" >&2
+      return 42
+    fi
+
+    git -C "$repository_path" "$@"
+  }
+
+  if output="$(run_check_manual_merge_resolutions "$repo_path" "$approval_sha" "$head_sha" 2>/dev/null)"; then
+    status=0
+  else
+    status=$?
+  fi
+
+  # shellcheck disable=SC1091
+  source "$ACTION_DIR/check-manual-merge-resolutions.sh"
+
+  [[ $status -ne 0 ]] || fail "Expected merge-base failure to propagate as non-zero, got output:"$'\n'"$output"
+}
+
 test_rev_list_failure_returns_nonzero() {
   local repo_path output status
   repo_path="$(mktemp -d)"
@@ -570,6 +615,7 @@ main() {
   test_decision_keeps_successful_no_approval_path_safe
   test_rewritten_history_defers_to_range_diff
   test_rewritten_history_with_changed_patch_series_is_stale_via_range_diff
+  test_merge_base_failure_returns_nonzero
   test_rev_list_failure_returns_nonzero
   test_missing_approval_commit_is_stale
   test_bare_repo_conflict_merge_is_stale
