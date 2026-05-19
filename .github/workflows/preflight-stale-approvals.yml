@@ -44,21 +44,11 @@ jobs:
             const ref = job_workflow_ref.split('@')[1];
             core.setOutput('ref', ref);
 
-      - name: Checkout action from pull request
-        if: github.event_name == 'pull_request'
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref: ${{ github.event.pull_request.head.sha }}
-          sparse-checkout: |
-            .github/actions/dismiss-stale-approvals
-
-      - name: Checkout action from reusable workflow ref
-        if: github.event_name != 'pull_request'
+      - name: Checkout action
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           repository: hashintel/.github
-          ref: ${{ steps.workflow-ref.outputs.ref }}
+          ref: ${{ steps.workflow-ref.outputs.ref || 'main' }}
           sparse-checkout: |
             .github/actions/dismiss-stale-approvals
 
