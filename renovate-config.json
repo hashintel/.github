@@ -33,7 +33,6 @@
   "packageRules": [
     {
       "extends": ["packages:linters", "packages:test"],
-      "dependencyDashboardApproval": false,
       "assignees": ["TimDiekmann", "indietyp"]
     },
     {
@@ -41,7 +40,6 @@
       "commitMessageTopic": "GitHub Action `{{depName}}`",
       "additionalBranchPrefix": "gha/",
       "pinDigests": true,
-      "dependencyDashboardApproval": false,
       "assignees": ["TimDiekmann", "indietyp"],
       "schedule": ["before 2am on saturday"]
     },
@@ -62,14 +60,12 @@
       "commitMessageTopic": "Rust crate `{{depName}}`",
       "additionalBranchPrefix": "rs/",
       "reviewers": ["team:Rust"],
-      "dependencyDashboardApproval": false,
       "assignees": ["TimDiekmann", "indietyp"]
     },
     {
       "matchManagers": ["mise"],
       "commitMessageTopic": "tool `{{depName}}`",
       "additionalBranchPrefix": "tool/",
-      "dependencyDashboardApproval": false,
       "assignees": ["TimDiekmann", "indietyp"]
     },
     {
@@ -78,7 +74,6 @@
       "matchDepTypes": ["provider"],
       "additionalBranchPrefix": "tf/",
       "commitMessageTopic": "Terraform provider `{{depName}}`",
-      "dependencyDashboardApproval": false,
       "assignees": ["TimDiekmann"]
     },
     {
@@ -92,12 +87,10 @@
       "matchManagers": ["tflint-plugin"],
       "additionalBranchPrefix": "tflint/",
       "commitMessageTopic": "TFLint plugin `{{depName}}`",
-      "dependencyDashboardApproval": false,
       "assignees": ["TimDiekmann"]
     },
     {
       "matchDepTypes": ["devDependencies"],
-      "dependencyDashboardApproval": false,
       "assignees": ["TimDiekmann", "indietyp"],
       "matchPackageNames": [
         "/^@vitest//",
@@ -139,7 +132,6 @@
       "groupName": "LLM provider SDK npm packages",
       "matchManagers": ["npm"],
       "automerge": false,
-      "dependencyDashboardApproval": false,
       "matchPackageNames": ["/^@openai//", "/^@anthropic-ai//", "/groq-sdk/"]
     },
     {
@@ -160,8 +152,7 @@
     {
       "groupName": "`rollup` npm packages",
       "matchManagers": ["npm"],
-      "matchPackageNames": ["/^@rollup//", "/^rollup$/"],
-      "dependencyDashboardApproval": false
+      "matchPackageNames": ["/^@rollup//", "/^rollup$/"]
     },
     {
       "groupName": "`sigma` npm packages",
@@ -192,7 +183,6 @@
     {
       "groupName": "`eslint` npm packages",
       "matchManagers": ["npm"],
-      "dependencyDashboardApproval": false,
       "matchPackageNames": [
         "/^@types/eslint/",
         "/^@typescript-eslint//",
@@ -229,19 +219,12 @@
     {
       "automerge": false,
       "matchManagers": ["npm"],
-      "dependencyDashboardApproval": false,
       "assignees": ["CiaranMn"],
       "matchPackageNames": ["/typescript/"]
     },
     {
-      "matchManagers": ["npm"],
-      "dependencyDashboardApproval": false,
-      "matchPackageNames": ["/httpyac/"]
-    },
-    {
       "groupName": "`vitest` npm packages",
       "matchManagers": ["npm"],
-      "dependencyDashboardApproval": false,
       "matchPackageNames": ["/^@vitest//", "/^vitest/", "/^vite-/", "/vitest$/"]
     },
     {
@@ -268,7 +251,6 @@
     {
       "groupName": "`playwright` npm packages",
       "matchManagers": ["npm"],
-      "dependencyDashboardApproval": false,
       "assignees": ["CiaranMn"],
       "matchPackageNames": ["/^@playwright//", "/^playwright/", "/playwright$/"]
     },
@@ -286,7 +268,6 @@
     {
       "groupName": "`biome` npm packages",
       "matchManagers": ["npm"],
-      "dependencyDashboardApproval": false,
       "matchPackageNames": ["/^@biomejs/"]
     },
     {
