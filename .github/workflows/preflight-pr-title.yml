@@ -13,9 +13,11 @@ name: PR Title
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, edited]
     paths:
       - ".github/workflows/preflight-pr-title.yml"
   pull_request_target:
+    types: [opened, synchronize, reopened, edited]
   merge_group:
   workflow_call:
     inputs:
