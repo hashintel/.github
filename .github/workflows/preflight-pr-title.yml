@@ -5,10 +5,9 @@
 # before the first ":". Mirrors the prefix-parsing convention already used by
 # `preflight-todo-comments.yml`, so the same IDs power both checks.
 #
-# Bot-authored PRs are skipped by default (any account where
+# Bot-authored PRs are skipped (any account where
 # `pull_request.user.type == 'Bot'`, which covers `hash-worker[bot]`,
-# `dependabot[bot]`, and any other GitHub App). Additional user logins can be
-# skipped via the `ignored-actors` input.
+# `dependabot[bot]`, and any other GitHub App).
 name: PR Title
 
 on:
