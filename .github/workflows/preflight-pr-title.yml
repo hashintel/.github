@@ -1,0 +1,120 @@
+# Enforce Linear issue ID in PR titles
+#
+# Reusable workflow that fails when a PR title doesn't include a Linear issue
+# ID (e.g. `H-1234`, `BE-5678`, `SRE-708`) in the prefix segment — the text
+# before the first ":". Mirrors the prefix-parsing convention already used by
+# `preflight-todo-comments.yml`, so the same IDs power both checks.
+#
+# Bot-authored PRs are skipped by default (any account where
+# `pull_request.user.type == 'Bot'`, which covers `hash-worker[bot]`,
+# `dependabot[bot]`, and any other GitHub App). Additional user logins can be
+# skipped via the `ignored-actors` input.
+name: PR Title
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+    paths:
+      - ".github/workflows/preflight-pr-title.yml"
+  pull_request_target:
+    types: [opened, synchronize, reopened, edited]
+  merge_group:
+  workflow_call:
+    inputs:
+      ignored-actors:
+        description: |
+          Additional GitHub logins to exempt from the check, as a
+          newline- or comma-separated list. GitHub App accounts
+          (`pull_request.user.type == 'Bot'`) are always skipped, so
+          this is only needed for human accounts that should be exempt.
+        type: string
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Linear Issue ID
+    runs-on: ubuntu-24.04
+    if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
+    steps:
+      - name: Determine whether to skip the check
+        id: skip
+        env:
+          PR_USER: ${{ github.event.pull_request.user.login }}
+          PR_USER_TYPE: ${{ github.event.pull_request.user.type }}
+          EXTRA_IGNORED: ${{ inputs.ignored-actors }}
+        run: |
+          echo "PR author: $PR_USER (type: $PR_USER_TYPE)"
+
+          if [[ "$PR_USER_TYPE" == "Bot" ]]; then
+            echo "::notice::Skipping check — PR authored by a bot account ($PR_USER)."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [[ -n "$EXTRA_IGNORED" ]]; then
+            EXTRA_NORMALIZED=$(printf '%s' "$EXTRA_IGNORED" \
+              | tr ',' '\n' \
+              | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' \
+              | sed '/^$/d')
+
+            if echo "$EXTRA_NORMALIZED" | grep -qFx "$PR_USER"; then
+              echo "::notice::Skipping check — PR author $PR_USER is in the ignored-actors list."
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      - name: Validate PR title contains Linear issue ID
+        if: steps.skip.outputs.skip != 'true'
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          echo "PR title: $PR_TITLE"
+
+          # Match prefix-parsing in preflight-todo-comments.yml so the same
+          # IDs are picked up by both checks.
+          PREFIX=$(echo "$PR_TITLE" | cut -d':' -f1)
+
+          TICKETS=$(echo "$PREFIX" \
+            | grep -oiE '[A-Z]+-[0-9]+' \
+            | tr '[:lower:]' '[:upper:]' \
+            | sort -u \
+            | tr '\n' ' ')
+
+          if [[ -z "$TICKETS" ]]; then
+            echo "::error::PR title is missing a Linear issue ID."
+            {
+              echo "## ❌ Missing Linear issue ID in PR title"
+              echo
+              echo "Current title:"
+              echo
+              echo "> \`$PR_TITLE\`"
+              echo
+              echo "Every human-authored PR must reference at least one Linear issue."
+              echo "Include the issue ID (e.g. \`H-1234\`, \`BE-5678\`, \`SRE-708\`) in the"
+              echo "prefix of the title — the segment before the first \`:\`. Multiple IDs"
+              echo "may be combined."
+              echo
+              echo "**Examples**"
+              echo
+              echo "- \`H-1234: Add support for X\`"
+              echo "- \`SRE-708, SRE-709: Disable autocreation of dependency PRs\`"
+              echo "- \`feat(H-1234): Add support for X\`"
+              echo
+              echo "Bot-authored PRs (\`hash-worker[bot]\`, \`dependabot[bot]\`, …) are exempt."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+          echo "::notice::Found Linear issue IDs: $TICKETS"
+          {
+            echo "## ✅ Linear issue ID found"
+            echo
+            echo "Detected ticket IDs in PR title prefix: \`$TICKETS\`"
+          } >> "$GITHUB_STEP_SUMMARY"
