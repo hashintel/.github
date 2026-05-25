@@ -1,6 +1,9 @@
 {
   "private": true,
   "devDependencies": {
-    "renovate": "43.104.1"
+    "renovate": "43.150.0"
+  },
+  "overrides": {
+    "protobufjs": "8.4.2"
   }
 }
