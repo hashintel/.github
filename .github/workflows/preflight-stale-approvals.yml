@@ -98,43 +98,10 @@ jobs:
             exit 1
           fi
 
-      - name: Read latest approval SHA
-        id: approval
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ACTION_PATH: .github/actions/dismiss-stale-approvals
-          PR_NUMBER: ${{ steps.pr.outputs.number }}
-          REPOSITORY: ${{ github.repository }}
-        shell: bash
-        run: |
-          approval_sha="$("$ACTION_PATH/latest-approval-sha.sh" "$REPOSITORY" "$PR_NUMBER")"
-          echo "sha=$approval_sha" >> "$GITHUB_OUTPUT"
-
-      - name: Fetch PR head SHA
-        id: pr-head
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ steps.pr.outputs.number }}
-        shell: bash
-        run: |
-          head_sha=$(gh pr view "$PR_NUMBER" --json headRefOid --jq '.headRefOid')
-          echo "sha=$head_sha" >> "$GITHUB_OUTPUT"
-
       - name: Check approval freshness
-        env:
-          APPROVAL_SHA: ${{ steps.approval.outputs.sha }}
-          PR_HEAD_SHA: ${{ steps.pr-head.outputs.sha }}
-          PR_NUMBER: ${{ steps.pr.outputs.number }}
-        shell: bash
-        run: |
-          if [[ -z "$APPROVAL_SHA" ]]; then
-            echo "::error::PR #$PR_NUMBER has no approvals"
-            exit 1
-          fi
-
-          if [[ "$APPROVAL_SHA" != "$PR_HEAD_SHA" ]]; then
-            echo "::error::PR #$PR_NUMBER has stale approvals (approved at $APPROVAL_SHA, current head is $PR_HEAD_SHA)"
-            exit 1
-          fi
-
-          echo "PR #$PR_NUMBER has fresh approvals (approved at $APPROVAL_SHA)"
+        uses: ./.github/actions/dismiss-stale-approvals
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pr-number: ${{ steps.pr.outputs.number }}
+          skip-range-diff: true
+          fail-if-stale: true
