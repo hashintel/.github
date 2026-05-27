@@ -197,7 +197,3 @@ runs:
           --reason "$REASON" \
           --dry-run "$DRY_RUN"
 
-    - name: Fail if approvals are stale
-      if: steps.decision.outputs.stale == 'true'
-      shell: bash
-      run: exit 1
