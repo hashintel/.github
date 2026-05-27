@@ -23,7 +23,7 @@ run_decide_stale_approvals() {
   elif [[ "$merge_tree_stale" == "true" ]]; then
     stale="true"
     reason="$merge_tree_reason"
-  elif [[ "$range_diff_outcome" != "success" ]]; then
+  elif [[ "$range_diff_outcome" != "success" && "$range_diff_outcome" != "skipped" ]]; then
     stale="true"
     reason="Failed to check if diff has changed; see action logs at $workflow_run_url"
   elif [[ "$no_prev_shas" == "1" ]]; then

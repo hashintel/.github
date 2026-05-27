@@ -76,12 +76,13 @@ runs:
         HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         PR_NUMBER: ${{ inputs.pr-number || github.event.pull_request.number }}
         GH_TOKEN: ${{ inputs.github-token }}
+        REPOSITORY: ${{ github.repository }}
       run: |
         if [[ -n "$HEAD_SHA" && -n "$BASE_SHA" ]]; then
           echo "HEAD_SHA=$HEAD_SHA" >> "$GITHUB_ENV"
           echo "BASE_SHA=$BASE_SHA" >> "$GITHUB_ENV"
         else
-          pr_data=$(gh pr view "$PR_NUMBER" --json headRefOid,baseRefOid)
+          pr_data=$(gh pr view "$PR_NUMBER" --repo "$REPOSITORY" --json headRefOid,baseRefOid)
           echo "HEAD_SHA=$(echo "$pr_data" | jq -r '.headRefOid')" >> "$GITHUB_ENV"
           echo "BASE_SHA=$(echo "$pr_data" | jq -r '.baseRefOid')" >> "$GITHUB_ENV"
         fi
