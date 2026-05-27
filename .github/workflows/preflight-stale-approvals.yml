@@ -32,28 +32,6 @@ jobs:
     runs-on: ubuntu-24.04
     if: github.event_name == 'merge_group'
     steps:
-      - name: Extract PR number from merge group ref
-        id: extract-pr
-        env:
-          MERGE_GROUP_HEAD_REF: ${{ github.event.merge_group.head_ref }}
-        run: |
-          # Merge group ref format: gh-readonly-queue/<base>/pr-<number>-<sha>
-          if [[ "$MERGE_GROUP_HEAD_REF" =~ pr-([0-9]+)- ]]; then
-            echo "pr_number=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
-          else
-            echo "::error::Could not extract PR number from merge group ref: $MERGE_GROUP_HEAD_REF"
-            exit 1
-          fi
-
-      - name: Get PR head SHA
-        id: pr-head
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ steps.extract-pr.outputs.pr_number }}
-        run: |
-          head_sha=$(gh api "/repos/${{ github.repository }}/pulls/$PR_NUMBER" --jq '.head.sha')
-          echo "sha=$head_sha" >> "$GITHUB_OUTPUT"
-
       - name: Resolve reusable workflow ref
         id: workflow-ref
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
@@ -73,25 +51,58 @@ jobs:
           sparse-checkout: |
             .github/actions/dismiss-stale-approvals
 
-      - name: Check approval freshness
+      - name: Check approval freshness for all PRs in merge group
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ steps.extract-pr.outputs.pr_number }}
-          PR_HEAD_SHA: ${{ steps.pr-head.outputs.sha }}
+          MERGE_GROUP_HEAD_SHA: ${{ github.event.merge_group.head_sha }}
+          MERGE_GROUP_BASE_SHA: ${{ github.event.merge_group.base_sha }}
         run: |
-          approval_sha=$(.github/actions/dismiss-stale-approvals/latest-approval-sha.sh "${{ github.repository }}" "$PR_NUMBER")
+          # Find all PRs that are part of this merge group by examining commits
+          # between the base and head of the merge group
+          pr_numbers=$(gh api "/repos/${{ github.repository }}/compare/${MERGE_GROUP_BASE_SHA}...${MERGE_GROUP_HEAD_SHA}" \
+            --jq '[.commits[].commit.message | capture("Merge pull request #(?<num>[0-9]+)") | .num] | unique | .[]' 2>/dev/null || true)
 
-          if [[ -z "$approval_sha" ]]; then
-            echo "::error::PR #$PR_NUMBER has no approvals"
+          # Fallback: extract PR number from head_ref if no merge commits found
+          if [[ -z "$pr_numbers" ]]; then
+            head_ref="${{ github.event.merge_group.head_ref }}"
+            if [[ "$head_ref" =~ pr-([0-9]+)- ]]; then
+              pr_numbers="${BASH_REMATCH[1]}"
+            else
+              echo "::error::Could not identify PRs in merge group"
+              exit 1
+            fi
+          fi
+
+          echo "PRs in merge group: $pr_numbers"
+
+          failed=0
+          for pr_number in $pr_numbers; do
+            echo "Checking PR #$pr_number..."
+
+            pr_head_sha=$(gh api "/repos/${{ github.repository }}/pulls/$pr_number" --jq '.head.sha')
+
+            approval_sha=$(.github/actions/dismiss-stale-approvals/latest-approval-sha.sh "${{ github.repository }}" "$pr_number")
+
+            if [[ -z "$approval_sha" ]]; then
+              echo "::error::PR #$pr_number has no approvals"
+              failed=1
+              continue
+            fi
+
+            if [[ "$approval_sha" != "$pr_head_sha" ]]; then
+              echo "::error::PR #$pr_number has stale approvals. Latest approval was on $approval_sha but PR head is $pr_head_sha"
+              failed=1
+              continue
+            fi
+
+            echo "PR #$pr_number: approvals are fresh (approved at $approval_sha)"
+          done
+
+          if [[ $failed -eq 1 ]]; then
             exit 1
           fi
 
-          if [[ "$approval_sha" != "$PR_HEAD_SHA" ]]; then
-            echo "::error::Approvals are stale. Latest approval was on $approval_sha but PR head is $PR_HEAD_SHA"
-            exit 1
-          fi
-
-          echo "Approvals are fresh (approved at $approval_sha)"
+          echo "All PRs in merge group have fresh approvals"
 
   dismiss:
     name: Dismiss
