@@ -30,7 +30,6 @@ jobs:
   dismiss:
     name: Dismiss
     runs-on: ubuntu-24.04
-    if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
     steps:
       - name: Resolve reusable workflow ref
         id: workflow-ref
@@ -52,40 +51,11 @@ jobs:
             .github/actions/dismiss-stale-approvals
 
       - name: Run self-test
+        if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
         run: .github/actions/dismiss-stale-approvals/self-test.sh
 
-      - name: Dismiss stale pull request approvals
-        id: dismiss
-        uses: ./.github/actions/dismiss-stale-approvals
-        with:
-          dry-run: ${{ github.event_name == 'pull_request' }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-  check-merge-queue:
-    name: Check merge queue
-    runs-on: ubuntu-24.04
-    if: github.event_name == 'merge_group'
-    steps:
-      - name: Resolve reusable workflow ref
-        id: workflow-ref
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
-        with:
-          script: |
-            const token = await core.getIDToken();
-            const [, payload] = token.split('.');
-            const { job_workflow_ref } = JSON.parse(Buffer.from(payload, 'base64url'));
-            const ref = job_workflow_ref.split('@')[1];
-            core.setOutput('ref', ref);
-
-      - name: Checkout action
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          repository: hashintel/.github
-          ref: ${{ steps.workflow-ref.outputs.ref }}
-          sparse-checkout: |
-            .github/actions/dismiss-stale-approvals
-
       - name: Extract PR number from merge group ref
+        if: github.event_name == 'merge_group'
         id: pr
         env:
           HEAD_REF: ${{ github.event.merge_group.head_ref }}
@@ -98,10 +68,11 @@ jobs:
             exit 1
           fi
 
-      - name: Check approval freshness
+      - name: Dismiss stale pull request approvals
         uses: ./.github/actions/dismiss-stale-approvals
         with:
+          dry-run: ${{ github.event_name == 'pull_request' }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           pr-number: ${{ steps.pr.outputs.number }}
-          skip-range-diff: true
-          fail-if-stale: true
+          skip-range-diff: ${{ github.event_name == 'merge_group' }}
+          fail-if-stale: ${{ github.event_name == 'merge_group' }}
