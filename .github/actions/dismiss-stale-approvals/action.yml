@@ -13,6 +13,17 @@ inputs:
     description: Comment on the PR instead of dismissing approvals
     required: false
     default: false
+  pr-number:
+    description: Override the PR number (for merge_group events where context is unavailable)
+    required: false
+  fail-if-stale:
+    description: Exit with non-zero code if approvals are stale (useful for merge queue checks)
+    required: false
+    default: false
+  skip-range-diff:
+    description: Skip the range-diff check (for merge_group where no previous SHAs exist)
+    required: false
+    default: false
 
 outputs:
   stale:
@@ -34,11 +45,12 @@ runs:
         echo "workflow_run_url=$run_url" >> "$GITHUB_OUTPUT"
 
     - name: Download SHAs from last run
+      if: inputs.skip-range-diff != 'true'
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.github-token }}
         ACTION_PATH: ${{ github.action_path }}
-        PR_NUMBER: ${{ github.event.pull_request.number }}
+        PR_NUMBER: ${{ inputs.pr-number || github.event.pull_request.number }}
         HEAD_REF: ${{ github.head_ref }}
         REPOSITORY: ${{ github.repository }}
         WORKFLOW_NAME: ${{ github.workflow }}
@@ -62,17 +74,28 @@ runs:
       env:
         BASE_SHA: ${{ github.event.pull_request.base.sha }}
         HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        PR_NUMBER: ${{ inputs.pr-number || github.event.pull_request.number }}
+        GH_TOKEN: ${{ inputs.github-token }}
+        REPOSITORY: ${{ github.repository }}
       run: |
-        echo "HEAD_SHA=$HEAD_SHA" >> "$GITHUB_ENV"
-        echo "BASE_SHA=$BASE_SHA" >> "$GITHUB_ENV"
+        if [[ -n "$HEAD_SHA" && -n "$BASE_SHA" ]]; then
+          echo "HEAD_SHA=$HEAD_SHA" >> "$GITHUB_ENV"
+          echo "BASE_SHA=$BASE_SHA" >> "$GITHUB_ENV"
+        else
+          pr_data=$(gh pr view "$PR_NUMBER" --repo "$REPOSITORY" --json headRefOid,baseRefOid)
+          echo "HEAD_SHA=$(echo "$pr_data" | jq -r '.headRefOid')" >> "$GITHUB_ENV"
+          echo "BASE_SHA=$(echo "$pr_data" | jq -r '.baseRefOid')" >> "$GITHUB_ENV"
+        fi
 
     - name: Write SHAs to file
+      if: inputs.skip-range-diff != 'true'
       shell: bash
       run: |
         echo "$HEAD_SHA" > shas.txt
         echo "$BASE_SHA" >> shas.txt
 
     - name: Upload SHAs
+      if: inputs.skip-range-diff != 'true'
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       continue-on-error: true
       with:
@@ -81,6 +104,7 @@ runs:
 
     - name: Check if diff has changed
       id: range-diff
+      if: inputs.skip-range-diff != 'true'
       continue-on-error: true
       shell: bash
       env:
@@ -121,7 +145,7 @@ runs:
       env:
         ACTION_PATH: ${{ github.action_path }}
         GH_TOKEN: ${{ inputs.github-token }}
-        PR_NUMBER: ${{ github.event.pull_request.number }}
+        PR_NUMBER: ${{ inputs.pr-number || github.event.pull_request.number }}
         REPOSITORY: ${{ github.repository }}
       run: |
         approval_sha="$("$ACTION_PATH/latest-approval-sha.sh" "$REPOSITORY" "$PR_NUMBER")"
@@ -187,7 +211,7 @@ runs:
         ACTION_PATH: ${{ github.action_path }}
         DRY_RUN: ${{ inputs.dry-run }}
         GH_TOKEN: ${{ inputs.github-token }}
-        PR_NUMBER: ${{ github.event.pull_request.number }}
+        PR_NUMBER: ${{ inputs.pr-number || github.event.pull_request.number }}
         REASON: ${{ steps.decision.outputs.reason }}
         REPOSITORY: ${{ github.repository }}
       run: |
@@ -196,3 +220,9 @@ runs:
           --pr-number "$PR_NUMBER" \
           --reason "$REASON" \
           --dry-run "$DRY_RUN"
+
+    - name: Fail if stale
+      if: inputs.fail-if-stale == 'true' && steps.decision.outputs.stale == 'true'
+      shell: bash
+      run: exit 1
+
