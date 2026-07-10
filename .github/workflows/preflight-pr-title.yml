@@ -5,9 +5,9 @@
 # before the first ":". Mirrors the prefix-parsing convention already used by
 # `preflight-todo-comments.yml`, so the same IDs power both checks.
 #
-# Bot-authored PRs are skipped (any account where
-# `pull_request.user.type == 'Bot'`, which covers `hash-worker[bot]`,
-# `dependabot[bot]`, and any other GitHub App).
+# Only `dependabot[bot]` and `hash-worker[bot]` (the account that opens
+# renovate PRs) are exempt. PRs from any other account — including other
+# bots and GitHub Apps such as Claude — must reference a Linear issue ID.
 name: PR Title
 
 on:
@@ -27,7 +27,7 @@ jobs:
   check:
     name: Linear Issue ID
     runs-on: ubuntu-24.04
-    if: (github.event_name == 'pull_request' || github.event_name == 'pull_request_target') && github.event.pull_request.user.type != 'Bot'
+    if: (github.event_name == 'pull_request' || github.event_name == 'pull_request_target') && !contains(fromJSON('["dependabot[bot]", "hash-worker[bot]"]'), github.event.pull_request.user.login)
     steps:
       - name: Validate PR title contains Linear issue ID
         env:
@@ -54,7 +54,7 @@ jobs:
               echo
               echo "> \`$PR_TITLE\`"
               echo
-              echo "Every human-authored PR must reference at least one Linear issue."
+              echo "Every PR must reference at least one Linear issue."
               echo "Include the issue ID (e.g. \`H-1234\`, \`BE-5678\`, \`SRE-708\`) in the"
               echo "prefix of the title — the segment before the first \`:\`. Multiple IDs"
               echo "may be combined."
@@ -65,7 +65,9 @@ jobs:
               echo "- \`SRE-708, SRE-709: Disable autocreation of dependency PRs\`"
               echo "- \`feat(H-1234): Add support for X\`"
               echo
-              echo "Bot-authored PRs (\`hash-worker[bot]\`, \`dependabot[bot]\`, …) are exempt."
+              echo "Only \`dependabot[bot]\` and \`hash-worker[bot]\` (renovate) are exempt;"
+              echo "all other PRs — including bot-authored ones (e.g. Claude) — must"
+              echo "reference a Linear issue ID."
             } >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
