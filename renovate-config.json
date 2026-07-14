@@ -44,6 +44,15 @@
       "schedule": ["before 2am on saturday"]
     },
     {
+      "description": "Automatically bump the org's own reusable-workflow pins without dashboard approval",
+      "matchManagers": ["github-actions"],
+      "matchPackageNames": ["hashintel/.github"],
+      "matchUpdateTypes": ["digest"],
+      "dependencyDashboardApproval": false,
+      "minimumReleaseAge": "0 days",
+      "schedule": ["at any time"]
+    },
+    {
       "matchManagers": ["docker-compose", "dockerfile"],
       "commitMessageTopic": "Docker tag `{{depName}}`",
       "additionalBranchPrefix": "docker/",
