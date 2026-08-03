@@ -5,6 +5,12 @@
 # Once installed, if the workflow run is marked as required, PRs introducing
 # known-vulnerable packages will be blocked from merging.
 #
+# Callers may allowlist individual advisories via the `allow-ghsas` input. This
+# is intended for advisories whose GitHub Advisory Database entry is wrong (e.g.
+# a backported fix missing from the affected version range), not for accepting
+# known risk — pair every entry with a comment naming the correction PR filed
+# against https://github.com/github/advisory-database and drop it once merged.
+#
 # Source repository: https://github.com/actions/dependency-review-action
 # Public documentation: https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/about-dependency-review#dependency-review-enforcement
 name: Dependencies
@@ -16,6 +22,11 @@ on:
   pull_request_target:
   merge_group:
   workflow_call:
+    inputs:
+      allow-ghsas:
+        description: 'Comma-separated list of GitHub Advisory IDs to ignore (e.g. "GHSA-abcd-1234-5679, GHSA-efgh-1234-5679")'
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -37,3 +48,7 @@ jobs:
         with:
           comment-summary-in-pr: on-failure
           show-patched-versions: true
+          # Empty on this workflow's own triggers and for callers that don't set
+          # it; the action treats an empty input as unset, so the check stays
+          # fully enforcing by default.
+          allow-ghsas: ${{ inputs.allow-ghsas }}
