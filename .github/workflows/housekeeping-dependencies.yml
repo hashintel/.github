@@ -1,9 +1,9 @@
 # Centralized Renovate workflow
 #
 # Reusable workflow that runs Renovate with a centrally pinned version.
-# The Renovate version is defined in /package.json and managed by Renovate itself.
+# The Renovate version is locked in /package-lock.json and managed by Renovate itself.
 #
-# Uses OIDC token to resolve the correct checkout ref for the package.json.
+# Uses OIDC token to resolve the correct checkout ref for the lockfile.
 #
 # TODO: Replace OIDC workaround with $/ syntax once available
 # see: https://github.com/orgs/community/discussions/26245#discussioncomment-15601440
@@ -69,7 +69,7 @@ on:
 
 permissions:
   actions: read
-  contents: write
+  contents: read
   id-token: write
 
 jobs:
@@ -96,19 +96,14 @@ jobs:
             const ref = job_workflow_ref.split('@')[1];
             core.setOutput('ref', ref);
 
-      - name: Checkout .github repo for Renovate version
+      - name: Checkout .github repo for the Renovate lockfile
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           repository: hashintel/.github
           ref: ${{ steps.workflow-ref.outputs.ref }}
-          sparse-checkout: package.json
-
-      - name: Read Renovate version
-        id: renovate-version
-        run: |
-          version=$(jq -r '.devDependencies.renovate' package.json)
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "Renovate version: $version"
+          sparse-checkout: |
+            package.json
+            package-lock.json
 
       - name: Authenticate Vault
         id: secrets
@@ -121,20 +116,31 @@ jobs:
             automation/data/pipelines/hash/dev github_worker_app_id | GITHUB_WORKER_APP_ID ;
             automation/data/pipelines/hash/dev github_worker_app_private_key | GITHUB_WORKER_APP_PRIVATE_KEY ;
 
+      - name: Resolve repository name
+        id: repo
+        run: echo "name=${GITHUB_REPOSITORY#*/}" >> "$GITHUB_OUTPUT"
+
       - name: Get token
         id: app-token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
           app-id: ${{ steps.secrets.outputs.GITHUB_WORKER_APP_ID }}
           private-key: ${{ steps.secrets.outputs.GITHUB_WORKER_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ steps.repo.outputs.name }}
 
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: 24
 
+      # `npm ci` resolves nothing at runtime, so a package published after the lockfile
+      # was written cannot enter the tree. Renovate treats `re2` as optional and falls
+      # back to native RegExp when the native build is missing.
       - name: Install Renovate
-        run: npm install --global "renovate@${{ steps.renovate-version.outputs.version }}"
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          echo "$PWD/node_modules/.bin" >> "$GITHUB_PATH"
 
       - name: Download renovate cache
         uses: dawidd6/action-download-artifact@b6e2e70617bc3265edd6dab6c906732b2f1ae151 # v21
@@ -164,6 +170,8 @@ jobs:
           RENOVATE_PLATFORM_COMMIT: enabled
           RENOVATE_REPOSITORIES: ${{ github.repository }}
           RENOVATE_REPOSITORY_CACHE: ${{ env.repo_cache }}
+          RENOVATE_ALLOW_SCRIPTS: "false"
+          RENOVATE_IGNORE_SCRIPTS: "true"
         run: renovate
 
       - name: Compress renovate cache
