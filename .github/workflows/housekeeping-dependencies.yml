@@ -1,9 +1,9 @@
 # Centralized Renovate workflow
 #
 # Reusable workflow that runs Renovate with a centrally pinned version.
-# The Renovate version is defined in /package.json and managed by Renovate itself.
+# The Renovate version is locked in /package-lock.json and managed by Renovate itself.
 #
-# Uses OIDC token to resolve the correct checkout ref for the package.json.
+# Uses OIDC token to resolve the correct checkout ref for the lockfile.
 #
 # TODO: Replace OIDC workaround with $/ syntax once available
 # see: https://github.com/orgs/community/discussions/26245#discussioncomment-15601440
@@ -96,19 +96,14 @@ jobs:
             const ref = job_workflow_ref.split('@')[1];
             core.setOutput('ref', ref);
 
-      - name: Checkout .github repo for Renovate version
+      - name: Checkout .github repo for the Renovate lockfile
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           repository: hashintel/.github
           ref: ${{ steps.workflow-ref.outputs.ref }}
-          sparse-checkout: package.json
-
-      - name: Read Renovate version
-        id: renovate-version
-        run: |
-          version=$(jq -r '.devDependencies.renovate' package.json)
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "Renovate version: $version"
+          sparse-checkout: |
+            package.json
+            package-lock.json
 
       - name: Authenticate Vault
         id: secrets
@@ -139,15 +134,13 @@ jobs:
         with:
           node-version: 24
 
-      # Renovate treats `re2` as optional and falls back to native RegExp when the
-      # native build is missing, which is what skipping install scripts causes here.
+      # `npm ci` resolves nothing at runtime, so a package published after the lockfile
+      # was written cannot enter the tree. Renovate treats `re2` as optional and falls
+      # back to native RegExp when the native build is missing.
       - name: Install Renovate
-        env:
-          RENOVATE_VERSION: ${{ steps.renovate-version.outputs.version }}
         run: |
-          mkdir -p "$RUNNER_TEMP/renovate"
-          npm install --ignore-scripts --no-audit --no-fund \
-            --prefix "$RUNNER_TEMP/renovate" "renovate@$RENOVATE_VERSION"
+          npm ci --ignore-scripts --no-audit --no-fund
+          echo "$PWD/node_modules/.bin" >> "$GITHUB_PATH"
 
       - name: Download renovate cache
         uses: dawidd6/action-download-artifact@b6e2e70617bc3265edd6dab6c906732b2f1ae151 # v21
@@ -179,7 +172,7 @@ jobs:
           RENOVATE_REPOSITORY_CACHE: ${{ env.repo_cache }}
           RENOVATE_ALLOW_SCRIPTS: "false"
           RENOVATE_IGNORE_SCRIPTS: "true"
-        run: "$RUNNER_TEMP/renovate/node_modules/.bin/renovate"
+        run: renovate
 
       - name: Compress renovate cache
         if: env.is_pr != 'true' && env.dry_run == 'disabled' && env.repo_cache != 'disabled'

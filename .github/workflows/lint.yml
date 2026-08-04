@@ -18,8 +18,8 @@ jobs:
 
       - name: Validate renovate config
         run: |
-          version=$(jq -r '.devDependencies.renovate' package.json)
-          npm install --global "renovate@$version"
+          npm ci --ignore-scripts --no-audit --no-fund
+          export PATH="$PWD/node_modules/.bin:$PATH"
           # Without arguments the validator only checks this repo's own config
           # (`renovate.json`). The shared preset `renovate-config.json`, which
           # other repos extend via `github>hashintel/.github:renovate-config`,
