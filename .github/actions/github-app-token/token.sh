@@ -23,6 +23,7 @@ request=$(jq --null-input \
 
 signature=$(curl --silent --show-error --fail-with-body --request POST \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
+    --header "Content-Type: application/json" \
     --header "CF-Access-Client-Id: ${CF_ACCESS_CLIENT_ID}" \
     --header "CF-Access-Client-Secret: ${CF_ACCESS_CLIENT_SECRET}" \
     --data "${request}" \
