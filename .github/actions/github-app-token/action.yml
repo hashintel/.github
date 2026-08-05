@@ -5,6 +5,9 @@ inputs:
   vault-address:
     description: Vault instance holding the signing key.
     required: true
+  vault-role:
+    description: JWT role for the calling workflow, which is what binds this to one caller.
+    required: true
   cf-access-client-id:
     description: Cloudflare Access service token id for that Vault instance.
     required: true
@@ -20,9 +23,9 @@ outputs:
     description: Installation token, scoped to `repository` and valid for an hour.
     value: ${{ steps.token.outputs.token }}
 
-# The role, the transit key and the App id are one unit: the role's policy grants
-# signing with that one key, and that key is the one GitHub has registered for
-# that one App. Changing any of the three means changing all of them.
+# The transit key and the App id are one unit: the key is the one GitHub has
+# registered for that one App, so changing either means changing both. The role
+# varies per caller, and its policy is what grants signing with that key.
 runs:
   using: composite
   steps:
@@ -32,7 +35,7 @@ runs:
       with:
         url: ${{ inputs.vault-address }}
         method: jwt
-        role: ci-github-app-signer
+        role: ${{ inputs.vault-role }}
         outputToken: true
         extraHeaders: |
           CF-Access-Client-Id: ${{ inputs.cf-access-client-id }}

@@ -86,6 +86,7 @@ jobs:
         uses: $/.github/actions/github-app-token
         with:
           vault-address: ${{ vars.VAULT_STAGE_ADDR }}
+          vault-role: ci-renovate
           cf-access-client-id: ${{ vars.CF_ACCESS_STAGE_CLIENT_ID }}
           cf-access-client-secret: ${{ secrets.CF_ACCESS_STAGE_CLIENT_SECRET }}
 
