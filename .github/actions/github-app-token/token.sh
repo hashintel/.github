@@ -26,7 +26,7 @@ signature=$(curl --silent --show-error --fail-with-body --request POST \
     --header "CF-Access-Client-Id: ${CF_ACCESS_CLIENT_ID}" \
     --header "CF-Access-Client-Secret: ${CF_ACCESS_CLIENT_SECRET}" \
     --data "${request}" \
-    "${VAULT_ADDR%/}/v1/transit/sign/${TRANSIT_KEY}" | jq --raw-output '.data.signature')
+    "${VAULT_ADDR%/}/v1/transit/sign/${TRANSIT_KEY}" | jq --exit-status --raw-output '.data.signature')
 
 # Vault prefixes the base64 signature with the key version that produced it.
 jwt="${signing_input}.$(printf '%s' "${signature#vault:v*:}" | tr '+/' '-_' | tr -d '=')"
@@ -40,10 +40,12 @@ github_api() {
 }
 
 # Looked up rather than configured, so a new caller needs no extra input.
-installation=$(github_api "https://api.github.com/repos/${REPOSITORY}/installation" | jq --raw-output '.id')
+# `--exit-status` so a 200 that carries no field fails here rather than further
+# down as an unexplained 401.
+installation=$(github_api "https://api.github.com/repos/${REPOSITORY}/installation" | jq --exit-status --raw-output '.id')
 token=$(github_api --request POST \
     --data "$(jq --null-input --arg repo "${REPOSITORY#*/}" '{repositories: [$repo]}')" \
-    "https://api.github.com/app/installations/${installation}/access_tokens" | jq --raw-output '.token')
+    "https://api.github.com/app/installations/${installation}/access_tokens" | jq --exit-status --raw-output '.token')
 
 echo "::add-mask::${token}"
 echo "token=${token}" >>"${GITHUB_OUTPUT}"

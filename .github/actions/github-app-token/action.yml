@@ -22,7 +22,7 @@ inputs:
     required: true
   repository:
     description: Repository to scope the token to, as `owner/name`.
-    default: ${{ github.repository }}
+    required: true
 
 outputs:
   token:
