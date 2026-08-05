@@ -1,0 +1,53 @@
+name: GitHub App token
+description: Mint an installation token, signing the App JWT in Vault so the private key never reaches the runner.
+
+inputs:
+  vault-address:
+    description: Vault instance holding the signing key.
+    required: true
+  cf-access-client-id:
+    description: Cloudflare Access service token id for that Vault instance.
+    required: true
+  cf-access-client-secret:
+    description: Cloudflare Access service token secret for that Vault instance.
+    required: true
+  repository:
+    description: Repository to scope the token to, as `owner/name`.
+    default: ${{ github.repository }}
+
+outputs:
+  token:
+    description: Installation token, scoped to `repository` and valid for an hour.
+    value: ${{ steps.token.outputs.token }}
+
+# The role, the transit key and the App id are one unit: the role's policy grants
+# signing with that one key, and that key is the one GitHub has registered for
+# that one App. Changing any of the three means changing all of them.
+runs:
+  using: composite
+  steps:
+    - name: Authenticate Vault
+      id: vault
+      uses: hashicorp/vault-action@892a26828f195e65540a40b4768ae4571f51ebfc # v4
+      with:
+        url: ${{ inputs.vault-address }}
+        method: jwt
+        role: ci-github-app-signer
+        outputToken: true
+        extraHeaders: |
+          CF-Access-Client-Id: ${{ inputs.cf-access-client-id }}
+          CF-Access-Client-Secret: ${{ inputs.cf-access-client-secret }}
+
+    - name: Mint installation token
+      id: token
+      shell: bash
+      env:
+        VAULT_ADDR: ${{ inputs.vault-address }}
+        VAULT_TOKEN: ${{ steps.vault.outputs.vault_token }}
+        CF_ACCESS_CLIENT_ID: ${{ inputs.cf-access-client-id }}
+        CF_ACCESS_CLIENT_SECRET: ${{ inputs.cf-access-client-secret }}
+        TRANSIT_KEY: github-app-hash-worker
+        # `GET /apps/hash-worker` returns this, so it is not a secret.
+        APP_ID: "991899"
+        REPOSITORY: ${{ inputs.repository }}
+      run: "${GITHUB_ACTION_PATH}/token.sh"

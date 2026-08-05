@@ -9,6 +9,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  shell:
+    name: Validate shell scripts
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Shellcheck
+        run: git ls-files -z '*.sh' | xargs -0 --no-run-if-empty shellcheck
+
   renovate:
     name: Validate renovate config
     runs-on: ubuntu-24.04
@@ -16,10 +26,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
+      - name: Install Renovate
+        uses: $/.github/actions/install-renovate
+
       - name: Validate renovate config
         run: |
-          npm ci --ignore-scripts --no-audit --no-fund
-          export PATH="$PWD/node_modules/.bin:$PATH"
           # Without arguments the validator only checks this repo's own config
           # (`renovate.json`). The shared preset `renovate-config.json`, which
           # other repos extend via `github>hashintel/.github:renovate-config`,
