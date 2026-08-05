@@ -66,10 +66,15 @@ on:
       CF_ACCESS_STAGE_CLIENT_SECRET:
         description: >-
           Cloudflare Access service token for the staging Vault. A called
-          workflow does not inherit secrets the way it resolves `vars`, so every
-          caller passes this one and a caller that forgets fails at dispatch
-          rather than on a Cloudflare rejection.
-        required: true
+          workflow does not inherit secrets the way it resolves `vars`, and
+          SRE-901 removed `secrets: inherit` from the callers, so each one has to
+          pass this.
+        # Optional only so the callers can adopt it one at a time: a caller
+        # cannot pass a secret this workflow does not declare, so declaring it
+        # required would break every caller the moment this merges. Tighten it
+        # once they all pass it, and a caller that forgets then fails at dispatch
+        # instead of on a Cloudflare rejection.
+        required: false
 
 permissions:
   actions: read
