@@ -5,9 +5,12 @@
 # before the first ":". Mirrors the prefix-parsing convention already used by
 # `preflight-todo-comments.yml`, so the same IDs power both checks.
 #
-# Only `dependabot[bot]` and `hash-worker[bot]` (the account that opens
-# renovate PRs) are exempt. PRs from any other account — including other
-# bots and GitHub Apps such as Claude — must reference a Linear issue ID.
+# Exempt are `dependabot[bot]`, the account that opens renovate PRs, and the one
+# changesets opens the release PR as. Any other account — including other bots
+# and GitHub Apps such as Claude — must reference a Linear issue ID.
+#
+# `hash-worker[bot]` covers callers still pinned to the revision where both paths
+# shared one App, and goes once none are.
 name: PR Title
 
 on:
@@ -27,7 +30,7 @@ jobs:
   check:
     name: Linear Issue ID
     runs-on: ubuntu-24.04
-    if: (github.event_name == 'pull_request' || github.event_name == 'pull_request_target') && !contains(fromJSON('["dependabot[bot]", "hash-worker[bot]"]'), github.event.pull_request.user.login)
+    if: (github.event_name == 'pull_request' || github.event_name == 'pull_request_target') && !contains(fromJSON('["dependabot[bot]", "hash-dependencies[bot]", "hash-release[bot]", "hash-worker[bot]"]'), github.event.pull_request.user.login)
     steps:
       - name: Validate PR title contains Linear issue ID
         env:
