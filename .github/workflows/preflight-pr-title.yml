@@ -5,9 +5,9 @@
 # before the first ":". Mirrors the prefix-parsing convention already used by
 # `preflight-todo-comments.yml`, so the same IDs power both checks.
 #
-# Only `dependabot[bot]` and `hash-worker[bot]` (the account that opens
-# renovate PRs) are exempt. PRs from any other account — including other
-# bots and GitHub Apps such as Claude — must reference a Linear issue ID.
+# Exempt are `dependabot[bot]`, the account that opens renovate PRs, and the one
+# changesets opens the release PR as. Any other account — including other bots
+# and GitHub Apps such as Claude — must reference a Linear issue ID.
 name: PR Title
 
 on:
@@ -27,7 +27,7 @@ jobs:
   check:
     name: Linear Issue ID
     runs-on: ubuntu-24.04
-    if: (github.event_name == 'pull_request' || github.event_name == 'pull_request_target') && !contains(fromJSON('["dependabot[bot]", "hash-worker[bot]"]'), github.event.pull_request.user.login)
+    if: (github.event_name == 'pull_request' || github.event_name == 'pull_request_target') && !contains(fromJSON('["dependabot[bot]", "hash-dependencies[bot]", "hash-release[bot]"]'), github.event.pull_request.user.login)
     steps:
       - name: Validate PR title contains Linear issue ID
         env:
@@ -65,7 +65,8 @@ jobs:
               echo "- \`SRE-708, SRE-709: Disable autocreation of dependency PRs\`"
               echo "- \`feat(H-1234): Add support for X\`"
               echo
-              echo "Only \`dependabot[bot]\` and \`hash-worker[bot]\` (renovate) are exempt;"
+              echo "Only \`dependabot[bot]\`, \`hash-dependencies[bot]\` (renovate) and"
+              echo "\`hash-release[bot]\` (changesets) are exempt;"
               echo "all other PRs — including bot-authored ones (e.g. Claude) — must"
               echo "reference a Linear issue ID."
             } >> "$GITHUB_STEP_SUMMARY"

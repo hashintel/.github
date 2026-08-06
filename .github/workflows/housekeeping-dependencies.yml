@@ -1,19 +1,15 @@
 # Centralized Renovate workflow
 #
-# Reusable workflow that runs Renovate with a centrally pinned version.
-# The Renovate version is locked in /package-lock.json and managed by Renovate itself.
-#
-# Uses OIDC token to resolve the correct checkout ref for the lockfile.
-#
-# TODO: Replace OIDC workaround with $/ syntax once available
-# see: https://github.com/orgs/community/discussions/26245#discussioncomment-15601440
+# Reusable workflow that runs Renovate with a centrally pinned version, and with
+# an installation token minted from a key that only Vault can use.
 name: Update dependencies
 
 on:
   pull_request:
     paths:
       - ".github/workflows/housekeeping-dependencies.yml"
-      - "package.json"
+      - ".github/actions/install-renovate/**"
+      - ".github/actions/github-app-token/**"
   schedule:
     - cron: "0 */2 * * *"
   workflow_dispatch:
@@ -66,6 +62,14 @@ on:
         description: "Dry run mode"
         type: string
         default: disabled
+    secrets:
+      CF_ACCESS_STAGE_CLIENT_SECRET:
+        description: >-
+          Cloudflare Access service token for the staging Vault. A called workflow
+          does not inherit secrets the way it resolves `vars`, so each caller
+          passes this explicitly, and one that omits it fails at dispatch rather
+          than on a Cloudflare rejection.
+        required: true
 
 permissions:
   actions: read
@@ -85,62 +89,20 @@ jobs:
       repo_cache: ${{ inputs.repoCache || 'enabled' }}
 
     steps:
-      - name: Resolve reusable workflow ref
-        id: workflow-ref
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
-        with:
-          script: |
-            const token = await core.getIDToken();
-            const [, payload] = token.split('.');
-            const { job_workflow_ref } = JSON.parse(Buffer.from(payload, 'base64url'));
-            const ref = job_workflow_ref.split('@')[1];
-            core.setOutput('ref', ref);
-
-      - name: Checkout .github repo for the Renovate lockfile
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          repository: hashintel/.github
-          ref: ${{ steps.workflow-ref.outputs.ref }}
-          sparse-checkout: |
-            package.json
-            package-lock.json
-
-      - name: Authenticate Vault
-        id: secrets
-        uses: hashicorp/vault-action@892a26828f195e65540a40b4768ae4571f51ebfc # v4
-        with:
-          url: ${{ vars.VAULT_ADDR }}
-          method: jwt
-          role: dev
-          secrets: |
-            automation/data/pipelines/hash/dev github_worker_app_id | GITHUB_WORKER_APP_ID ;
-            automation/data/pipelines/hash/dev github_worker_app_private_key | GITHUB_WORKER_APP_PRIVATE_KEY ;
-
-      - name: Resolve repository name
-        id: repo
-        run: echo "name=${GITHUB_REPOSITORY#*/}" >> "$GITHUB_OUTPUT"
-
       - name: Get token
         id: app-token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        uses: $/.github/actions/github-app-token
         with:
-          app-id: ${{ steps.secrets.outputs.GITHUB_WORKER_APP_ID }}
-          private-key: ${{ steps.secrets.outputs.GITHUB_WORKER_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
-          repositories: ${{ steps.repo.outputs.name }}
+          vault-address: ${{ vars.VAULT_STAGE_ADDR }}
+          vault-role: ci-renovate
+          app-id: "4505109"
+          transit-key: github-app-hash-dependencies
+          repository: ${{ github.repository }}
+          cf-access-client-id: ${{ vars.CF_ACCESS_STAGE_CLIENT_ID }}
+          cf-access-client-secret: ${{ secrets.CF_ACCESS_STAGE_CLIENT_SECRET }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
-        with:
-          node-version: 24
-
-      # `npm ci` resolves nothing at runtime, so a package published after the lockfile
-      # was written cannot enter the tree. Renovate treats `re2` as optional and falls
-      # back to native RegExp when the native build is missing.
       - name: Install Renovate
-        run: |
-          npm ci --ignore-scripts --no-audit --no-fund
-          echo "$PWD/node_modules/.bin" >> "$GITHUB_PATH"
+        uses: $/.github/actions/install-renovate
 
       - name: Download renovate cache
         uses: dawidd6/action-download-artifact@b6e2e70617bc3265edd6dab6c906732b2f1ae151 # v21
