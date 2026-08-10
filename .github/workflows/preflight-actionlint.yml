@@ -2,7 +2,7 @@
 #
 # Reusable workflow that runs actionlint over the calling repository's
 # workflow files, with the actionlint version pinned centrally.
-name: Actionlint
+name: Lint
 
 on:
   pull_request:
