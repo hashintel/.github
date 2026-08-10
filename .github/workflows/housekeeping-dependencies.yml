@@ -84,6 +84,8 @@ on:
           passes it explicitly, and one that omits it fails at dispatch.
         required: true
 
+permissions: {}
+
 jobs:
   mint-token:
     name: Mint token
