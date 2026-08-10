@@ -2,6 +2,13 @@
 #
 # Reusable workflow that runs Renovate with a centrally pinned version, and with
 # an installation token minted from a key that only Vault can use.
+#
+# Minting and running are separate jobs. Only the mint job holds
+# `id-token: write`, and it installs nothing, so dependency code in the
+# Renovate job cannot reach Vault to sign fresh App JWTs. The token crosses
+# the job boundary encrypted: GitHub drops masked values from job outputs, so
+# the plaintext could not make the trip anyway, and the ciphertext is useless
+# without `RENOVATE_TOKEN_ENC_KEY`.
 name: Update dependencies
 
 on:
@@ -70,23 +77,24 @@ on:
           passes this explicitly, and one that omits it fails at dispatch rather
           than on a Cloudflare rejection.
         required: true
-
-permissions:
-  actions: read
-  contents: read
-  id-token: write
+      RENOVATE_TOKEN_ENC_KEY:
+        description: >-
+          Symmetric passphrase that carries the installation token between the
+          two jobs as ciphertext. Same passing rules as above: each caller
+          passes it explicitly, and one that omits it fails at dispatch.
+        required: true
 
 jobs:
-  renovate:
-    name: Renovate
+  mint-token:
+    name: Mint token
     runs-on: ubuntu-24.04
-    concurrency:
-      cancel-in-progress: false
-      group: renovate
-    env:
-      is_pr: ${{ github.event_name == 'pull_request' }}
-      dry_run: ${{ github.event_name == 'pull_request' && 'extract' || inputs.dryRun || 'disabled' }}
-      repo_cache: ${{ inputs.repoCache || 'enabled' }}
+    # The only job allowed to talk to Vault. Nothing is installed here, so no
+    # dependency code ever runs next to `id-token: write`.
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      token-ciphertext: ${{ steps.encrypt.outputs.token-ciphertext }}
 
     steps:
       - name: Get token
@@ -100,6 +108,49 @@ jobs:
           repository: ${{ github.repository }}
           cf-access-client-id: ${{ vars.CF_ACCESS_STAGE_CLIENT_ID }}
           cf-access-client-secret: ${{ secrets.CF_ACCESS_STAGE_CLIENT_SECRET }}
+
+      # The token is already masked, and GitHub silently drops masked values
+      # from job outputs, so only ciphertext can cross the job boundary. The
+      # plaintext must never be echoed here.
+      - name: Encrypt token
+        id: encrypt
+        env:
+          TOKEN: ${{ steps.app-token.outputs.token }}
+          ENC_KEY: ${{ secrets.RENOVATE_TOKEN_ENC_KEY }}
+        run: |
+          : "${TOKEN:?}" "${ENC_KEY:?}"
+          ciphertext=$(printf '%s' "${TOKEN}" | openssl enc -aes-256-cbc -pbkdf2 -salt -pass env:ENC_KEY -base64 -A)
+          echo "token-ciphertext=${ciphertext}" >>"${GITHUB_OUTPUT}"
+
+  renovate:
+    name: Renovate
+    runs-on: ubuntu-24.04
+    needs: mint-token
+    # No `id-token` here: compromised dependency code in this job gets at most
+    # the hour-long installation token scoped to the calling repository.
+    permissions:
+      actions: read
+      contents: read
+    concurrency:
+      cancel-in-progress: false
+      group: renovate
+    env:
+      is_pr: ${{ github.event_name == 'pull_request' }}
+      dry_run: ${{ github.event_name == 'pull_request' && 'extract' || inputs.dryRun || 'disabled' }}
+      repo_cache: ${{ inputs.repoCache || 'enabled' }}
+
+    steps:
+      # First step, so the plaintext is masked before anything else runs.
+      - name: Decrypt token
+        id: app-token
+        env:
+          TOKEN_CIPHERTEXT: ${{ needs.mint-token.outputs.token-ciphertext }}
+          ENC_KEY: ${{ secrets.RENOVATE_TOKEN_ENC_KEY }}
+        run: |
+          : "${TOKEN_CIPHERTEXT:?}" "${ENC_KEY:?}"
+          token=$(printf '%s' "${TOKEN_CIPHERTEXT}" | openssl enc -d -aes-256-cbc -pbkdf2 -pass env:ENC_KEY -base64 -A)
+          echo "::add-mask::${token}"
+          echo "token=${token}" >>"${GITHUB_OUTPUT}"
 
       - name: Install Renovate
         uses: $/.github/actions/install-renovate
