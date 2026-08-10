@@ -88,8 +88,6 @@ jobs:
   mint-token:
     name: Mint token
     runs-on: ubuntu-24.04
-    # The only job allowed to talk to Vault. Nothing is installed here, so no
-    # dependency code ever runs next to `id-token: write`.
     permissions:
       contents: read
       id-token: write
