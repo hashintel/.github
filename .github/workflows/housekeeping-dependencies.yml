@@ -93,6 +93,11 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    # Shares the renovate group so the hour-long token is minted only once the
+    # run can proceed, not while queued behind a still-running Renovate job.
+    concurrency:
+      cancel-in-progress: false
+      group: renovate
     outputs:
       token-ciphertext: ${{ steps.encrypt.outputs.token-ciphertext }}
 
