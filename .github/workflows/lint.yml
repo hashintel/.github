@@ -4,8 +4,6 @@ on:
   pull_request:
   merge_group:
 
-# The renovate job installs dependency code; an explicit read-only grant keeps
-# a compromised package away from anything the default token might allow.
 permissions:
   contents: read
 
