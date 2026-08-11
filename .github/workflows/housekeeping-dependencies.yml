@@ -17,6 +17,8 @@ on:
       - ".github/workflows/housekeeping-dependencies.yml"
       - ".github/actions/install-renovate/**"
       - ".github/actions/github-app-token/**"
+      - ".github/actions/encrypt-secret/**"
+      - ".github/actions/decrypt-secret/**"
   schedule:
     - cron: "0 */2 * * *"
   workflow_dispatch:
@@ -99,7 +101,7 @@ jobs:
       cancel-in-progress: false
       group: renovate
     outputs:
-      token-ciphertext: ${{ steps.encrypt.outputs.token-ciphertext }}
+      token-ciphertext: ${{ steps.encrypt.outputs.encrypted_value }}
 
     steps:
       - name: Get token
@@ -115,17 +117,13 @@ jobs:
           cf-access-client-secret: ${{ secrets.CF_ACCESS_STAGE_CLIENT_SECRET }}
 
       # The token is already masked, and GitHub silently drops masked values
-      # from job outputs, so only ciphertext can cross the job boundary. The
-      # plaintext must never be echoed here.
+      # from job outputs, so only ciphertext can cross the job boundary.
       - name: Encrypt token
         id: encrypt
-        env:
-          TOKEN: ${{ steps.app-token.outputs.token }}
-          ENC_KEY: ${{ secrets.RENOVATE_TOKEN_ENC_KEY }}
-        run: |
-          : "${TOKEN:?}" "${ENC_KEY:?}"
-          ciphertext=$(printf '%s' "${TOKEN}" | openssl enc -aes-256-cbc -pbkdf2 -salt -pass env:ENC_KEY -base64 -A)
-          echo "token-ciphertext=${ciphertext}" >>"${GITHUB_OUTPUT}"
+        uses: $/.github/actions/encrypt-secret
+        with:
+          value: ${{ steps.app-token.outputs.token }}
+          encryption_key: ${{ secrets.RENOVATE_TOKEN_ENC_KEY }}
 
   renovate:
     name: Renovate
@@ -148,14 +146,10 @@ jobs:
       # First step, so the plaintext is masked before anything else runs.
       - name: Decrypt token
         id: app-token
-        env:
-          TOKEN_CIPHERTEXT: ${{ needs.mint-token.outputs.token-ciphertext }}
-          ENC_KEY: ${{ secrets.RENOVATE_TOKEN_ENC_KEY }}
-        run: |
-          : "${TOKEN_CIPHERTEXT:?}" "${ENC_KEY:?}"
-          token=$(printf '%s' "${TOKEN_CIPHERTEXT}" | openssl enc -d -aes-256-cbc -pbkdf2 -pass env:ENC_KEY -base64 -A)
-          echo "::add-mask::${token}"
-          echo "token=${token}" >>"${GITHUB_OUTPUT}"
+        uses: $/.github/actions/decrypt-secret
+        with:
+          encrypted_value: ${{ needs.mint-token.outputs.token-ciphertext }}
+          encryption_key: ${{ secrets.RENOVATE_TOKEN_ENC_KEY }}
 
       - name: Install Renovate
         uses: $/.github/actions/install-renovate
@@ -182,7 +176,7 @@ jobs:
       - name: Run Renovate
         env:
           LOG_LEVEL: ${{ inputs.logLevel || 'info' }}
-          RENOVATE_TOKEN: ${{ steps.app-token.outputs.token }}
+          RENOVATE_TOKEN: ${{ steps.app-token.outputs.value }}
           RENOVATE_FORCE: ${{ inputs.overrideSchedule && '{"schedule":null}' || '' }}
           RENOVATE_DRY_RUN: ${{ env.dry_run == 'disabled' && 'null' || env.dry_run }}
           RENOVATE_PLATFORM_COMMIT: enabled
