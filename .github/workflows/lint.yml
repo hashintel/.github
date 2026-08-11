@@ -43,7 +43,7 @@ jobs:
             echo ''
             echo 'ℹ️ ℹ️ ℹ️'
             echo 'Please fix the above errors locally for the check to pass.'
-            echo 'If you don’t see them, try merging target branch into yours.'
+            echo 'If you do not see them, try merging target branch into yours.'
             echo 'ℹ️ ℹ️ ℹ️'
             exit 1
           fi

@@ -440,6 +440,14 @@
       "packageNameTemplate": "rust-lang/rust-analyzer",
       "datasourceTemplate": "github-releases",
       "versioningTemplate": "regex:(?<major>\\d+)-(?<minor>\\d+)-(?<patch>\\d+)"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": ["(^|/)\\.github/workflows/[^/]+\\.ya?ml$"],
+      "matchStrings": [
+        "go run (?<depName>[^\\s@]+)/cmd/[^\\s@]+@(?<currentValue>v\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "go"
     }
   ]
 }

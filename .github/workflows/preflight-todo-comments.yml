@@ -45,12 +45,16 @@ jobs:
 
           if [[ -z "$TICKETS" ]]; then
             echo "No ticket IDs found in PR title"
-            echo "tickets=" >> "$GITHUB_OUTPUT"
-            echo "has_tickets=false" >> "$GITHUB_OUTPUT"
+            {
+              echo "tickets="
+              echo "has_tickets=false"
+            } >> "$GITHUB_OUTPUT"
           else
             echo "Found ticket IDs: $TICKETS"
-            echo "tickets=$TICKETS" >> "$GITHUB_OUTPUT"
-            echo "has_tickets=true" >> "$GITHUB_OUTPUT"
+            {
+              echo "tickets=$TICKETS"
+              echo "has_tickets=true"
+            } >> "$GITHUB_OUTPUT"
           fi
 
       - name: Search for TODO comments with ticket IDs
@@ -105,14 +109,16 @@ jobs:
             echo "::error::TODOs associated with tickets in this PR were found in the codebase."
             echo "::error::Please resolve these TODOs before merging, as the associated ticket(s) will be marked as done."
             echo ""
-            echo "## Found TODO comments" >> "$GITHUB_STEP_SUMMARY"
-            echo "" >> "$GITHUB_STEP_SUMMARY"
-            echo "The following TODO comments reference ticket IDs from this PR's title." >> "$GITHUB_STEP_SUMMARY"
-            echo "Please resolve these TODOs before merging, as the associated ticket(s) will be marked as done." >> "$GITHUB_STEP_SUMMARY"
-            echo "" >> "$GITHUB_STEP_SUMMARY"
-            echo '```' >> "$GITHUB_STEP_SUMMARY"
-            echo "$FOUND_TODOS" >> "$GITHUB_STEP_SUMMARY"
-            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            {
+              echo "## Found TODO comments"
+              echo ""
+              echo "The following TODO comments reference ticket IDs from this PR's title."
+              echo "Please resolve these TODOs before merging, as the associated ticket(s) will be marked as done."
+              echo ""
+              echo '```'
+              echo "$FOUND_TODOS"
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
 
