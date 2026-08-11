@@ -26,10 +26,6 @@ jobs:
       # TODO(SRE-941): drop the -ignore flags once actionlint knows `$/`
       # (rhysd/actionlint#711) and `concurrency.queue` (rhysd/actionlint#654)
       - name: Actionlint
-        env:
-          # Only error-level shellcheck findings gate; style/info findings in
-          # workflow scripts stay non-blocking.
-          SHELLCHECK_OPTS: --severity=error
         run: >-
           go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
           -ignore 'specifying action "\$/.+" in invalid format because ref is missing'
