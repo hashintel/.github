@@ -19,6 +19,7 @@ jobs:
   scan:
     name: Scan
     runs-on: ubuntu-24.04
+    timeout-minutes: 3
     if: github.event_name == 'pull_request'
     steps:
       - name: Checkout PR head
