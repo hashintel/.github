@@ -21,3 +21,10 @@ runs:
       run: |
         npm ci --ignore-scripts --no-audit --no-fund
         echo "${PWD}/node_modules/.bin" >>"${GITHUB_PATH}"
+
+    # The image's Yarn 1 cannot write a Yarn 4 lockfile, so Renovate falls back
+    # to a `package.json`-only pull request. Corepack runs the version each
+    # repository's `packageManager` pins; shimming `yarn` alone spares `npm ci`.
+    - name: Enable Corepack
+      shell: bash
+      run: corepack enable yarn
