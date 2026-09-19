@@ -301,11 +301,11 @@
       "matchPackageNames": ["/^@signia//"]
     },
     {
-      "matchManagers": ["custom.regex"],
+      "matchManagers": ["custom.regex", "rust-toolchain"],
       "matchDepNames": ["rust", "/(R|r)ust(-.+)?/"],
       "separateMajorMinor": false,
       "fetchChangeLogs": "off",
-      "commitMessageExtra": "to nightly-{{newVersion}}",
+      "commitMessageExtra": "to {{newVersion}}",
       "additionalBranchPrefix": "rs/",
       "groupName": "Rust toolchains",
       "commitMessageTopic": "Rust toolchains",
@@ -421,25 +421,13 @@
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": ["(^|/)rust-toolchain\\.toml?$"],
-      "matchStrings": [
-        "channel\\s*=\\s*\"nightly-(?<currentValue>\\d+-\\d+-\\d+)\""
-      ],
-      "depNameTemplate": "rust",
-      "packageNameTemplate": "rust-lang/rust-analyzer",
-      "datasourceTemplate": "github-releases",
-      "versioningTemplate": "regex:(?<major>\\d+)-(?<minor>\\d+)-(?<patch>\\d+)"
-    },
-    {
-      "customType": "regex",
       "fileMatch": ["(^|/)README\\.md$", "(^|/)src/lib\\.rs$"],
       "matchStrings": [
-        "https:\\/\\/img\\.shields\\.io\\/static\\/v1\\?label=Rust\\&message=\\d+\\.\\d+\\.\\d+\\/nightly-(?<currentValue>\\d+-\\d+-\\d+)\\&color=blue"
+        "https:\\/\\/img\\.shields\\.io\\/static\\/v1\\?label=Rust\\&message=\\d+\\.\\d+\\.\\d+\\/(?<currentValue>nightly-\\d+-\\d+-\\d+)\\&color=blue"
       ],
       "depNameTemplate": "rust",
-      "packageNameTemplate": "rust-lang/rust-analyzer",
-      "datasourceTemplate": "github-releases",
-      "versioningTemplate": "regex:(?<major>\\d+)-(?<minor>\\d+)-(?<patch>\\d+)"
+      "datasourceTemplate": "rust-version",
+      "versioningTemplate": "rust-release-channel"
     },
     {
       "customType": "regex",
