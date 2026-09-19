@@ -301,11 +301,11 @@
       "matchPackageNames": ["/^@signia//"]
     },
     {
-      "matchManagers": ["custom.regex"],
+      "matchManagers": ["custom.regex", "rust-toolchain"],
       "matchDepNames": ["rust", "/(R|r)ust(-.+)?/"],
       "separateMajorMinor": false,
       "fetchChangeLogs": "off",
-      "commitMessageExtra": "to nightly-{{newVersion}}",
+      "commitMessageExtra": "to {{newVersion}}",
       "additionalBranchPrefix": "rs/",
       "groupName": "Rust toolchains",
       "commitMessageTopic": "Rust toolchains",
@@ -421,25 +421,24 @@
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": ["(^|/)rust-toolchain\\.toml?$"],
+      "fileMatch": ["(^|/)README\\.md$", "(^|/)src/lib\\.rs$"],
       "matchStrings": [
-        "channel\\s*=\\s*\"nightly-(?<currentValue>\\d+-\\d+-\\d+)\""
+        "https:\\/\\/img\\.shields\\.io\\/static\\/v1\\?label=Rust\\&message=\\d+\\.\\d+\\.\\d+\\/(?<currentValue>nightly-\\d+-\\d+-\\d+)\\&color=blue"
       ],
       "depNameTemplate": "rust",
-      "packageNameTemplate": "rust-lang/rust-analyzer",
-      "datasourceTemplate": "github-releases",
-      "versioningTemplate": "regex:(?<major>\\d+)-(?<minor>\\d+)-(?<patch>\\d+)"
+      "datasourceTemplate": "rust-version",
+      "versioningTemplate": "rust-release-channel"
     },
     {
       "customType": "regex",
-      "fileMatch": ["(^|/)README\\.md$", "(^|/)src/lib\\.rs$"],
+      "description": "Keep the `rust` entry in the mise lockfile in sync with `rust-toolchain.toml`. The mise manager cannot do this itself because the Rust toolchain enters mise through the idiomatic version file, not through the mise config.",
+      "managerFilePatterns": ["/(^|/)\\.config/mise/mise\\.lock$/"],
       "matchStrings": [
-        "https:\\/\\/img\\.shields\\.io\\/static\\/v1\\?label=Rust\\&message=\\d+\\.\\d+\\.\\d+\\/nightly-(?<currentValue>\\d+-\\d+-\\d+)\\&color=blue"
+        "\\[\\[tools\\.rust\\]\\]\\nversion = \"(?<currentValue>nightly-\\d+-\\d+-\\d+)\""
       ],
       "depNameTemplate": "rust",
-      "packageNameTemplate": "rust-lang/rust-analyzer",
-      "datasourceTemplate": "github-releases",
-      "versioningTemplate": "regex:(?<major>\\d+)-(?<minor>\\d+)-(?<patch>\\d+)"
+      "datasourceTemplate": "rust-version",
+      "versioningTemplate": "rust-release-channel"
     },
     {
       "customType": "regex",
