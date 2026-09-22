@@ -304,15 +304,15 @@
       "matchManagers": ["custom.regex", "rust-toolchain"],
       "matchDepNames": ["rust", "/(R|r)ust(-.+)?/"],
       "separateMajorMinor": false,
-      "fetchChangeLogs": "off",
       "commitMessageExtra": "to {{newVersion}}",
       "additionalBranchPrefix": "rs/",
       "groupName": "Rust toolchains",
       "commitMessageTopic": "Rust toolchains",
-      "reviewers": ["team:Rust"],
+      "reviewers": ["team:infra"],
       "dependencyDashboardApproval": false,
-      "schedule": ["before 11am"],
-      "assignees": ["TimDiekmann", "indietyp"]
+      "schedule": ["* 1-4 * * 6"],
+      "assignees": ["TimDiekmann", "indietyp"],
+      "minimumReleaseAge": "0 days"
     },
     {
       "matchManagers": ["cargo"],
