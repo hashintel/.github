@@ -304,7 +304,7 @@
       "matchManagers": ["custom.regex", "rust-toolchain"],
       "matchDepNames": ["rust", "/(R|r)ust(-.+)?/"],
       "separateMajorMinor": false,
-      "fetchChangeLogs": "off",
+"separateMajorMinor": false,
       "commitMessageExtra": "to {{newVersion}}",
       "additionalBranchPrefix": "rs/",
       "groupName": "Rust toolchains",
