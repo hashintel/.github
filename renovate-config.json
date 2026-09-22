@@ -311,8 +311,9 @@
       "commitMessageTopic": "Rust toolchains",
       "reviewers": ["team:Rust"],
       "dependencyDashboardApproval": false,
-      "schedule": ["before 11am"],
-      "assignees": ["TimDiekmann", "indietyp"]
+      "schedule": ["* 1-4 * * 6"],
+      "assignees": ["TimDiekmann", "indietyp"],
+      "minimumReleaseAge": "0 days"
     },
     {
       "matchManagers": ["cargo"],
