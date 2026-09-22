@@ -309,7 +309,7 @@
       "additionalBranchPrefix": "rs/",
       "groupName": "Rust toolchains",
       "commitMessageTopic": "Rust toolchains",
-      "reviewers": ["team:Rust"],
+      "reviewers": ["team:infra"],
       "dependencyDashboardApproval": false,
       "schedule": ["* 1-4 * * 6"],
       "assignees": ["TimDiekmann", "indietyp"],
