@@ -22,7 +22,6 @@
 
 - Sign up for the free hosted version of HASH at [hash.ai]
 - Browse our developer docs and resources at [hash.dev]
-- View our design system at [hash.design]
 
 ### Underlying technology
 
