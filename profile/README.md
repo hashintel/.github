@@ -9,22 +9,28 @@
 <!-- Site links -->
 [hash.ai]: https://app.hash.ai/?utm_medium=organic&utm_source=github_readme_hashintel-profile_root
 [hash.dev]: https://hash.dev/?utm_medium=organic&utm_source=github_readme_hashintel-profile_root
+[semtype]: https://semtype.org/?utm_medium=organic&utm_source=github_readme_hashintel-profile_root
+[hgres]: https://hgres.org/?utm_medium=organic&utm_source=github_readme_hashintel-profile_root
+[petrinaut]: https://petrinaut.org/?utm_medium=organic&utm_source=github_readme_hashintel-profile_root
+[salt]: https://hash.design/foundations/design-system?utm_medium=organic&utm_source=github_readme_hashintel-profile_root
 
 ## HASH
 
 **[HASH]** is a self-building knowledge graph and platform for high-trust data and AI.
 
-- Try out the hosted version of HASH at [hash.ai]
+### Get started
+
+- Sign up for the free hosted version of HASH at [hash.ai]
 - Browse our developer docs and resources at [hash.dev]
 
 ### Underlying technology
 
 HASH is made possible by combining a series of technologies:
 
-- The **Semtype** standard for universal types that can be understood, used and composed by both people and machines
-- The **hgres** high-performance knowledge graph engine written in Rust
-- The **Petrinaut** framework for modeling distributed systems (and the world) using Petri nets
-- The **[Block Protocol]** standard for composable user and AI-defined block-based interfaces and the applications that embed them
+- The [SemType] standard for universal types that can be understood, used and composed by both people and machines
+- The [hgres] high-performance graph engine written in Rust, built around SemType
+- The [Petrinaut] framework for Petri Net-based modeling of processes, environments, and distributed systems in general
+- Our [Salt] design system and its associated tooling
 
 ### Around the web
 
